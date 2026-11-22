@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "resumeforge"
+version = "0.1.0"
+description = "SQL-backed Philippine gold-standard resume skill suite for niche research, chat-ingested pattern extraction, synthetic resume drafting, and independent auditing."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "pydantic>=2.7",
+    "typer>=0.12",
+    "rich>=13.7",
+    "pyyaml>=6.0",
+    "pypdf>=4.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+resumeforge = "resumeforge.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["resumeforge"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
