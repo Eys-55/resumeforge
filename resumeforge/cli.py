@@ -1109,6 +1109,7 @@ def resume_ats_check(
     ctx: typer.Context,
     resume_code: str,
     posting: str | None = typer.Option(None, "--posting", help="Posting key (defaults to the resume's target)."),
+    one_page: bool = typer.Option(False, "--one-page", help="Parse-check the compact 1-page PDF layout."),
     as_json: bool = typer.Option(False, "--json"),
 ) -> None:
     """Score a resume with the external Resume-Matcher install (ATS score + PDF parse check) and record it."""
@@ -1131,7 +1132,9 @@ def resume_ats_check(
     try:
         score = score_resume(data, keywords)
         with tempfile.TemporaryDirectory(prefix="resumeforge-ats-") as tmp:
-            pdf_path = render_resume_pdf(resume_code, Path(tmp) / f"{resume_code}.pdf", db_url=db)
+            pdf_path = render_resume_pdf(
+                resume_code, Path(tmp) / f"{resume_code}.pdf", db_url=db, one_page=one_page
+            )
             parse = parse_check_pdf(pdf_path)
         version = tool_version()
     except (ResumeMatcherError, RuntimeError, ValueError) as exc:
