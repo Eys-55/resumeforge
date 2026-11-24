@@ -69,14 +69,42 @@ def _find_chrome_binary(override: str | None = None) -> str:
     raise FileNotFoundError("Google Chrome / Chromium binary not found for headless PDF rendering.")
 
 
-def build_resume_html(data: dict[str, Any]) -> str:
+def _clean_github_handle(raw: str) -> str:
+    cleaned = raw.strip().rstrip("/")
+    for prefix in ("https://github.com/", "http://github.com/", "github.com/", "@"):
+        if cleaned.lower().startswith(prefix):
+            cleaned = cleaned[len(prefix) :]
+    return cleaned.strip("/")
+
+
+def build_resume_html(
+    data: dict[str, Any],
+    *,
+    one_page: bool = False,
+    github_handle: str | None = None,
+    email_override: str | None = None,
+    phone_override: str | None = None,
+) -> str:
     """Build single-column, ATS-parseable executive HTML for a ResumeForge record."""
+    city_str = str(data.get("city") or "").strip()
+    region_str = str(data.get("region") or "").strip()
+    location_display = (
+        _esc(city_str)
+        if city_str.lower() == region_str.lower() or not region_str
+        else f"{_esc(city_str)}, {_esc(region_str)}"
+    )
+    email_display = email_override.strip() if email_override and email_override.strip() else data["email"]
+    phone_display = phone_override.strip() if phone_override and phone_override.strip() else data["phone"]
     primary_contact = [
-        f"{_esc(data['city'])}, {_esc(data['region'])}",
-        _esc(data["email"]),
-        _esc(data["phone"]),
+        location_display,
+        _esc(email_display),
+        _esc(phone_display),
     ]
     links_parts: list[str] = []
+    if github_handle:
+        cleaned_gh = _clean_github_handle(github_handle)
+        if cleaned_gh:
+            links_parts.append(f"GitHub: github.com/{_esc(cleaned_gh)}")
     if data.get("linkedin_slug"):
         links_parts.append(f"LinkedIn: /in/{_esc(data['linkedin_slug'])}")
     if data.get("portfolio_url"):
@@ -107,6 +135,11 @@ def build_resume_html(data: dict[str, Any]) -> str:
             f"<li>{_esc(b['text'])}</li>" for b in exp.get("bullets", [])
         )
         date_label = _format_date_range(exp["start_date"], exp["end_date"])
+        exp_sub_text = (
+            f"{_esc(exp['location'])} · {_esc(exp['employment_type'])}"
+            if one_page
+            else f"{_esc(exp['location'])} · {_esc(exp['employment_type'])} · {_esc(exp['company_archetype'])}"
+        )
         exp_blocks.append(
             f"""
             <article class="exp-item">
@@ -118,7 +151,7 @@ def build_resume_html(data: dict[str, Any]) -> str:
                 </div>
                 <div class="date-range">{_esc(date_label)}</div>
               </div>
-              <div class="exp-sub">{_esc(exp['location'])} · {_esc(exp['employment_type'])} · {_esc(exp['company_archetype'])}</div>
+              <div class="exp-sub">{exp_sub_text}</div>
               <ul class="bullet-list">
                 {bullets_html}
               </ul>
@@ -128,6 +161,11 @@ def build_resume_html(data: dict[str, Any]) -> str:
 
     projects_html = ""
     if data.get("projects"):
+        projects_heading = (
+            "Selected GEO Projects"
+            if data.get("niche_slug") == "geo-ai-search"
+            else "Featured Projects"
+        )
         proj_items: list[str] = []
         for proj in data["projects"]:
             stack = ", ".join(proj.get("tech_stack") or [])
@@ -136,23 +174,40 @@ def build_resume_html(data: dict[str, Any]) -> str:
                 if proj.get("impact_metric")
                 else ""
             )
-            stack_html = f'<div class="proj-stack">Stack: {_esc(stack)}</div>' if stack else ""
-            proj_items.append(
-                f"""
-                <article class="proj-item">
-                  <div class="row-between">
-                    <div class="proj-title"><strong>{_esc(proj['name'])}</strong></div>
-                    <div class="proj-role">{_esc(proj['role'])}</div>
-                  </div>
-                  {stack_html}
-                  <p class="proj-summary">{_esc(proj['summary'])}</p>
-                  {impact_html}
-                </article>
-                """
-            )
+            if one_page:
+                stack_inline = (
+                    f'<span class="proj-stack-inline"> | {_esc(stack)}</span>' if stack else ""
+                )
+                proj_items.append(
+                    f"""
+                    <article class="proj-item">
+                      <div class="row-between">
+                        <div class="proj-title"><strong>{_esc(proj['name'])}</strong>{stack_inline}</div>
+                        <div class="proj-role">{_esc(proj['role'])}</div>
+                      </div>
+                      <p class="proj-summary">{_esc(proj['summary'])}</p>
+                      {impact_html}
+                    </article>
+                    """
+                )
+            else:
+                stack_html = f'<div class="proj-stack">Stack: {_esc(stack)}</div>' if stack else ""
+                proj_items.append(
+                    f"""
+                    <article class="proj-item">
+                      <div class="row-between">
+                        <div class="proj-title"><strong>{_esc(proj['name'])}</strong></div>
+                        <div class="proj-role">{_esc(proj['role'])}</div>
+                      </div>
+                      {stack_html}
+                      <p class="proj-summary">{_esc(proj['summary'])}</p>
+                      {impact_html}
+                    </article>
+                    """
+                )
         projects_html = f"""
         <section class="section">
-          <h2>Selected GEO Projects</h2>
+          <h2>{projects_heading}</h2>
           {''.join(proj_items)}
         </section>
         """
@@ -188,6 +243,13 @@ def build_resume_html(data: dict[str, Any]) -> str:
     langs = data.get("languages") or []
     creds_html = ""
     if certs or langs:
+        if certs and langs:
+            creds_heading = "Certifications &amp; Languages"
+        elif certs:
+            creds_heading = "Certifications"
+        else:
+            creds_heading = "Languages"
+
         cert_list_html = ""
         if certs:
             cert_lis = "\n".join(
@@ -200,14 +262,100 @@ def build_resume_html(data: dict[str, Any]) -> str:
             lang_joined = " · ".join(
                 f"{_esc(l['language'])} ({_esc(l['proficiency'])})" for l in langs
             )
-            lang_line_html = f'<div class="lang-line"><strong>Languages:</strong> {lang_joined}</div>'
+            if one_page and not certs:
+                lang_line_html = f'<div class="lang-line">{lang_joined}</div>'
+            else:
+                lang_line_html = f'<div class="lang-line"><strong>Languages:</strong> {lang_joined}</div>'
         creds_html = f"""
         <section class="section">
-          <h2>Certifications &amp; Languages</h2>
+          <h2>{creds_heading}</h2>
           {cert_list_html}
           {lang_line_html}
         </section>
         """
+
+    one_page_css = """
+  @page {
+    size: letter;
+    margin: 0.30in 0.44in;
+  }
+  body {
+    font-size: 8.45pt;
+    line-height: 1.23;
+  }
+  header {
+    margin-bottom: 4.5pt;
+  }
+  h1 {
+    font-size: 17.5pt;
+  }
+  .headline {
+    font-size: 9.4pt;
+    margin-bottom: 2pt;
+  }
+  .contact-bar, .setup-bar {
+    font-size: 8pt;
+    line-height: 1.22;
+  }
+  .section {
+    margin-top: 5.2pt;
+  }
+  h2 {
+    font-size: 8.6pt;
+    margin-bottom: 2.5pt;
+    padding-bottom: 1pt;
+  }
+  .summary {
+    font-size: 8.45pt;
+    line-height: 1.24;
+  }
+  .skill-row {
+    font-size: 8.25pt;
+    line-height: 1.22;
+    margin-bottom: 1.2pt;
+  }
+  .exp-item {
+    margin-bottom: 4.5pt;
+  }
+  .exp-title {
+    font-size: 8.9pt;
+  }
+  .exp-sub {
+    font-size: 7.9pt;
+    margin: 0.5pt 0 1.5pt 0;
+  }
+  .bullet-list li {
+    font-size: 8.35pt;
+    line-height: 1.22;
+    margin-bottom: 1.3pt;
+  }
+  .proj-item {
+    margin-bottom: 3.2pt;
+  }
+  .proj-title {
+    font-size: 8.5pt;
+  }
+  .proj-stack-inline {
+    font-weight: 500;
+    font-size: 8pt;
+    color: #4B5563;
+  }
+  .proj-summary {
+    font-size: 8.25pt;
+    line-height: 1.21;
+    margin: 0.6pt 0;
+  }
+  .proj-impact {
+    font-size: 8pt;
+    color: #1E3A5F;
+  }
+  .edu-item {
+    font-size: 8.4pt;
+  }
+  .lang-line {
+    font-size: 8.25pt;
+  }
+""" if one_page else ""
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -389,7 +537,7 @@ def build_resume_html(data: dict[str, Any]) -> str:
   .lang-line {{
     font-size: 9pt;
     color: #111827;
-  }}
+  }}{one_page_css}
 </style>
 </head>
 <body>
@@ -467,6 +615,10 @@ def render_resume_pdf(
     *,
     db_url: str | None = None,
     chrome_bin: str | None = None,
+    one_page: bool = False,
+    github_handle: str | None = None,
+    email_override: str | None = None,
+    phone_override: str | None = None,
 ) -> Path:
     """Fetch a resume by code from SQLite and render it to a PDF file."""
     with session_scope(db_url, read_only=True) as session:
@@ -475,7 +627,13 @@ def render_resume_pdf(
             raise ValueError(f"Resume not found in SQL: {resume_code}")
         data = _serialize_resume(resume)
 
-    html_content = build_resume_html(data)
+    html_content = build_resume_html(
+        data,
+        one_page=one_page,
+        github_handle=github_handle,
+        email_override=email_override,
+        phone_override=phone_override,
+    )
     render_html_to_pdf(html_content, out_path, chrome_bin=chrome_bin)
     return out_path
 
@@ -486,6 +644,22 @@ def _main() -> int:
     parser.add_argument("--out", default=None, help="Output PDF path")
     parser.add_argument("--db", default=None, help="Optional database path or SQLAlchemy URL")
     parser.add_argument("--chrome", default=None, help="Optional Chrome/Chromium binary path")
+    parser.add_argument("--one-page", action="store_true", help="Use compact 1-page ATS print layout")
+    parser.add_argument(
+        "--github",
+        default=None,
+        help="Optional GitHub handle to display in header (e.g. eys-55)",
+    )
+    parser.add_argument(
+        "--email",
+        default=None,
+        help="Optional email override for personal PDF export (not persisted to SQL)",
+    )
+    parser.add_argument(
+        "--phone",
+        default=None,
+        help="Optional phone override for personal PDF export (not persisted to SQL)",
+    )
     args = parser.parse_args()
 
     out_path = Path(args.out) if args.out else Path("exports") / f"{args.resume_code}.pdf"
@@ -494,6 +668,10 @@ def _main() -> int:
         out_path,
         db_url=args.db,
         chrome_bin=args.chrome,
+        one_page=args.one_page,
+        github_handle=args.github,
+        email_override=args.email,
+        phone_override=args.phone,
     )
     print(f"Rendered PDF: {rendered}")
     return 0

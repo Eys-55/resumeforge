@@ -187,10 +187,17 @@ def _serialize_resume(resume: Resume) -> dict[str, Any]:
 
 
 def _resume_to_markdown(data: dict[str, Any]) -> str:
+    city_str = str(data.get("city") or "").strip()
+    region_str = str(data.get("region") or "").strip()
+    location_display = (
+        city_str
+        if city_str.lower() == region_str.lower() or not region_str
+        else f"{city_str}, {region_str}"
+    )
     lines = [
         f"# {data['full_name']} (`{data['resume_code']}`)",
         f"**{data['headline']}**",
-        f"{data['city']}, {data['region']} | {data['email']} | {data['phone']}",
+        f"{location_display} | {data['email']} | {data['phone']}",
         f"Work Setup: {data['work_setup_preference']} | Timezone: {data['timezone_readiness']} | Status: `{data['status']}`",
         "",
         "## Professional Summary",
