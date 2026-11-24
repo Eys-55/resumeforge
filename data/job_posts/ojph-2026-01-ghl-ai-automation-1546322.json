@@ -1,0 +1,25 @@
+{
+  "posting_key": "ojph-2026-01-ghl-ai-automation-1546322",
+  "niche_slug": "tech-ai-automation",
+  "title": "GoHighLevel (GHL) & AI Automation Specialist",
+  "employer_type": "AI automation marketing agency (dormant-lead reactivation)",
+  "platform": "onlinejobs_ph",
+  "source_type": "url_extract",
+  "source_url": "https://www.onlinejobs.ph/jobseekers/job/Full-Time-GoHighLevel-GHL-AI-Automation-Specialist-Intermediate-to-Advanced-1546322",
+  "remote_setup": "Full-time remote, 40 hrs/week, semi-flexible hours",
+  "timezone_overlap": "Not stated (semi-flexible)",
+  "pay_band": "USD 750 / month",
+  "description_text": "Condensed from the public post. Build and optimize marketing funnels and automation workflows in GoHighLevel for the agency and clients. Set up pipelines, triggers, calendars, forms, surveys, memberships, and SMS/email/voicemail campaigns. Own client GHL account setup from scratch including integrations and tracking. Maintain CRM data and troubleshoot GHL workflow bugs. Build and optimize AI chatbots for lead qualification, FAQs, and support. Generate reports from campaign data, call logs, and CRM activity. Build advanced automations in Make, Zapier, or n8n. Support landing pages, nurture sequences, email/SMS campaigns, and performance analysis. Must have proven hands-on GHL experience including debugging complex workflows, practical AI tool use (chatbots, data analysis, reporting), digital marketing knowledge, and strong written and verbal English. Nice to have: Make/Zapier/n8n, Meta Ads, landing page building (WordPress, Webflow, GHL), SEO, email marketing, copywriting, basic JavaScript or Python.",
+  "keywords": {
+    "role": "GoHighLevel (GHL) & AI Automation Specialist",
+    "required_skills": ["GoHighLevel", "Workflows", "Funnels", "Pipelines", "AI Chatbots", "CRM", "Digital Marketing"],
+    "preferred_skills": ["Make", "Zapier", "n8n", "Meta Ads", "Landing Pages", "Email Marketing", "Python", "JavaScript"],
+    "experience_requirements": ["Hands-on GoHighLevel experience debugging complex workflows", "Practical use of AI tools for chatbots, data analysis, and reporting"],
+    "key_responsibilities": ["Build marketing funnels and automation workflows", "Client GHL account setup", "Build AI chatbots for lead qualification", "Reporting from campaign and CRM data"],
+    "keywords": ["triggers", "calendars", "forms", "surveys", "SMS", "email campaigns", "lead qualification", "nurture sequences", "reporting", "integrations"],
+    "experience_years": null,
+    "seniority_level": "intermediate to advanced"
+  },
+  "captured_on": "2026-11-25",
+  "pii_scrubbed": true
+}

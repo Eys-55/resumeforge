@@ -1,0 +1,25 @@
+{
+  "posting_key": "ojph-2026-09-senior-zapier-ghl-1633764",
+  "niche_slug": "tech-ai-automation",
+  "title": "Senior Automations, Zapier and GHL Specialist",
+  "employer_type": "Automation agency serving home-services clients (US hours)",
+  "platform": "onlinejobs_ph",
+  "source_type": "url_extract",
+  "source_url": "https://www.onlinejobs.ph/jobseekers/job/SENIOR-AUTOMATIONS-ZAPIER-AND-GHL-SPECIALIST-REMOTE-US-HOURS-1633764",
+  "remote_setup": "Full-time remote, 40 hrs/week, overnight PH shift",
+  "timezone_overlap": "9 AM-5 PM EST Monday-Friday (approx. 9 PM-5 AM PHT)",
+  "pay_band": "USD 1,600 / month (approx. PHP 97,000)",
+  "description_text": "Condensed from the public post. Build GoHighLevel workflows, pipelines, custom values, snapshots, and landing pages for new clients as directed by Account Managers. Build multi-step Zaps with paths, filters, formatters, and webhooks. Run a daily system health check of GHL and Zapier error logs and resolve breaks. Triage Slack messages and support tickets, resolving 95% within 24 hours. Root-cause broken automations and add safeguards. Maintain client automation playbooks; log build and support hours in ClickUp; QA-test every workflow before handoff. Must know: complex GHL workflows, pipelines, custom values, snapshots, landing pages, sub-account configuration, and debugging without help; Zapier multi-step Zaps with paths, filters, formatters, and webhooks and when to use Zapier versus GHL-native automation; integrations with field-service tools such as Housecall Pro, ServiceTitan, or Jobber; webhooks, basic API concepts, and JSON; documentation and clear English on video calls. Requires 4+ years of hands-on experience with GoHighLevel and Zapier.",
+  "keywords": {
+    "role": "Senior Automations, Zapier and GHL Specialist",
+    "required_skills": ["GoHighLevel", "Zapier", "Webhooks", "APIs", "JSON", "Snapshots", "Pipelines", "Custom Values"],
+    "preferred_skills": ["Housecall Pro", "ServiceTitan", "Jobber", "Slack", "ClickUp"],
+    "experience_requirements": ["4+ years hands-on experience with GoHighLevel and Zapier", "Debug broken workflows independently"],
+    "key_responsibilities": ["Build GHL workflows, pipelines, snapshots, and landing pages", "Build multi-step Zaps with paths, filters, and formatters", "Daily error-log health checks", "Triage support tickets within 24 hours", "QA-test workflows before handoff"],
+    "keywords": ["multi-step Zaps", "sub-accounts", "landing pages", "error logs", "root cause", "playbooks", "QA", "support tickets", "documentation"],
+    "experience_years": 4,
+    "seniority_level": "senior"
+  },
+  "captured_on": "2026-11-25",
+  "pii_scrubbed": true
+}

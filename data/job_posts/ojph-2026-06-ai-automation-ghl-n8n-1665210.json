@@ -1,0 +1,25 @@
+{
+  "posting_key": "ojph-2026-06-ai-automation-ghl-n8n-1665210",
+  "niche_slug": "tech-ai-automation",
+  "title": "AI Automation Specialist (GoHighLevel & n8n)",
+  "employer_type": "Company building AI-powered automation systems for businesses",
+  "platform": "onlinejobs_ph",
+  "source_type": "url_extract",
+  "source_url": "https://www.onlinejobs.ph/jobseekers/job/AI-Automation-Specialist-GoHighLevel-n8n-1665210",
+  "remote_setup": "Remote, 20 hrs/week, paid 1-2 week trial project first",
+  "timezone_overlap": "At least 4 hours daily overlap with US Pacific",
+  "pay_band": "USD 5-13 / hour plus performance bonuses",
+  "description_text": "Condensed from the public post. Build and manage GoHighLevel automations: funnels, pipelines, workflows, and integrations. Design and run n8n workflows connecting CRMs, APIs, and AI models. Use Claude Code to build, edit, and ship code-based projects and agents. Connect tools via APIs and webhooks, including tools not built to work together. Test work, find failures, and fix them before clients see them; document everything for maintenance and handoff. Requirements: deep hands-on GoHighLevel experience, strong n8n automation experience, experience with Claude Code or similar AI coding tools, comfortable with APIs and webhooks, self-directed problem solver with clear written English. Nice to have: AI agent frameworks, Make or Zapier, basic JavaScript or Python, AI chatbot or voice agent experience.",
+  "keywords": {
+    "role": "AI Automation Specialist",
+    "required_skills": ["GoHighLevel", "n8n", "Claude Code", "APIs", "Webhooks"],
+    "preferred_skills": ["AI agents", "Make", "Zapier", "JavaScript", "Python", "AI chatbots", "voice agents"],
+    "experience_requirements": ["Deep hands-on GoHighLevel experience", "Strong n8n automation experience", "Claude Code or similar AI coding tools"],
+    "key_responsibilities": ["Build GoHighLevel funnels, pipelines, and workflows", "Run n8n workflows connecting CRMs, APIs, and AI models", "Ship code-based projects and agents", "Test, fix, and document automations"],
+    "keywords": ["funnels", "pipelines", "workflows", "integrations", "CRM", "AI models", "documentation", "testing"],
+    "experience_years": null,
+    "seniority_level": "mid"
+  },
+  "captured_on": "2026-11-25",
+  "pii_scrubbed": true
+}
