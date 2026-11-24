@@ -41,6 +41,14 @@ VIEW_DEFINITIONS: dict[str, str] = {
             ORDER BY rv.id DESC
             LIMIT 1
         ) AS latest_review_score,
+        (SELECT jp.posting_key FROM job_postings jp WHERE jp.id = r.target_job_posting_id) AS target_posting_key,
+        (
+            SELECT ar.ats_score
+            FROM resume_ats_runs ar
+            WHERE ar.resume_id = r.id AND ar.job_posting_id = r.target_job_posting_id
+            ORDER BY ar.id DESC
+            LIMIT 1
+        ) AS latest_ats_score,
         r.created_at,
         r.updated_at
     FROM resumes r

@@ -30,6 +30,47 @@ def _sample_pattern(with_pii: bool = False) -> dict:
     }
 
 
+def _sample_job_posting(with_pii: bool = False) -> dict:
+    return {
+        "posting_key": "ojph-2026-11-ai-automation-01",
+        "niche_slug": "tech-ai-automation",
+        "title": "AI Automation Engineer (Remote, US Hours)",
+        "employer_type": "US B2B SaaS RevOps agency, ~30 staff",
+        "platform": "onlinejobs_ph",
+        "source_type": "pasted_text",
+        "remote_setup": "Full-time remote, Philippines-based",
+        "timezone_overlap": "US EST 4-hour overlap",
+        "pay_band": "USD 1,200-1,600 / month",
+        "description_text": (
+            "We need an automation engineer to build n8n and Python FastAPI integrations between HubSpot "
+            "and PostgreSQL, maintain Dockerized workers, and ship LLM-based ticket routing."
+            + (" Send your CV to hiring.manager@gmail.com" if with_pii else "")
+        ),
+        "keywords": {
+            "role": "AI Automation Engineer",
+            "required_skills": ["n8n", "Python", "FastAPI", "PostgreSQL"],
+            "preferred_skills": ["Docker", "HubSpot"],
+            "keywords": ["integrations", "LLM"],
+            "experience_years": 3,
+        },
+        "captured_on": "2026-11-20",
+        "pii_scrubbed": True,
+    }
+
+
+def _passing_ats_run(score: float = 86.0, parse_ok: bool = True) -> dict:
+    return {
+        "tool_version": "1.4.0",
+        "overall_score": score,
+        "sub_scores": {"keyword_match": 90.0, "skills_coverage": 85.0},
+        "missing_keywords": [],
+        "recommendations": [],
+        "parse_check_ok": parse_ok,
+        "parse_score": 100.0,
+        "parse_issues": [],
+    }
+
+
 def _sample_resume() -> dict:
     return {
         "resume_code": "PH-TECH-MID-101",
@@ -55,6 +96,7 @@ def _sample_resume() -> dict:
             "n8n, and PostgreSQL pipelines for B2B SaaS revenue and operations teams."
         ),
         "total_years_experience": 3.5,
+        "target_job_posting_key": "ojph-2026-11-ai-automation-01",
         "experiences": [
             {
                 "company_name": "Ortigas Cloud Partners",
@@ -170,6 +212,16 @@ def test_full_cli_lifecycle(tmp_path) -> None:
     res_good_pat = runner.invoke(app, [*base_args, "pattern", "add", "--json", str(good_pat_file)])
     assert res_good_pat.exit_code == 0, res_good_pat.output
 
+    # 2b. remote job posting (PII-guarded) that the resume targets
+    bad_job = tmp_path / "bad_job.json"
+    bad_job.write_text(json.dumps(_sample_job_posting(with_pii=True)), encoding="utf-8")
+    res_bad_job = runner.invoke(app, [*base_args, "job", "add", "--json", str(bad_job)])
+    assert res_bad_job.exit_code == 1
+    good_job = tmp_path / "good_job.json"
+    good_job.write_text(json.dumps(_sample_job_posting()), encoding="utf-8")
+    res_good_job = runner.invoke(app, [*base_args, "job", "add", "--json", str(good_job)])
+    assert res_good_job.exit_code == 0, res_good_job.output
+
     # 3. resume import + validate
     resume_file = tmp_path / "resume.json"
     resume_file.write_text(json.dumps(_sample_resume()), encoding="utf-8")
@@ -216,6 +268,12 @@ def test_full_cli_lifecycle(tmp_path) -> None:
     assert show_after_update["status"] == "draft"
     assert show_after_update["headline"] == updated_payload["headline"]
     assert len(show_after_update["languages"]) == len(updated_payload["languages"])
+
+    # 4c. External ATS run recorded against the target posting (Resume-Matcher result)
+    ats_file = tmp_path / "ats.json"
+    ats_file.write_text(json.dumps(_passing_ats_run()), encoding="utf-8")
+    res_ats = runner.invoke(app, [*base_args, "resume", "ats-record", "PH-TECH-MID-101", "--json", str(ats_file)])
+    assert res_ats.exit_code == 0, res_ats.output
 
     # 5. Passing review promotes to gold_standard
     high_review = tmp_path / "high_review.json"

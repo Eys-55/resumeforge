@@ -12,6 +12,15 @@ DEFAULT_DB_PATH = DATA_DIR / "resumes.db"
 ALEMBIC_INI_PATH = REPO_ROOT / "alembic.ini"
 MIGRATIONS_DIR = REPO_ROOT / "migrations"
 
+# Minimum Resume-Matcher ATS score (0-100) against the target job posting required for gold_standard.
+DEFAULT_ATS_MIN_SCORE = 80.0
+
+
+def get_ats_min_score() -> float:
+    """Resolve the ATS promotion threshold (`RESUMEFORGE_ATS_MIN_SCORE` overrides the default)."""
+    raw = os.environ.get("RESUMEFORGE_ATS_MIN_SCORE", "").strip()
+    return float(raw) if raw else DEFAULT_ATS_MIN_SCORE
+
 
 def get_database_url(db_url_or_path: Path | str | None = None) -> str:
     """Resolve the active SQLAlchemy database URL.

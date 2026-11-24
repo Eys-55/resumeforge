@@ -42,6 +42,13 @@ def run_migrations_online() -> None:
     url = _resolved_url()
     connectable = get_engine(url, read_only=False)
     with connectable.connect() as connection:
+        is_sqlite = connection.dialect.name == "sqlite"
+        if is_sqlite:
+            # SQLite batch migrations rebuild tables (copy -> DROP -> rename). With foreign keys ON,
+            # the DROP fires ON DELETE CASCADE and silently wipes every child row. Disable FK
+            # enforcement for the migration (must happen outside a transaction), then verify integrity.
+            connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
+            connection.commit()
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
@@ -49,6 +56,12 @@ def run_migrations_online() -> None:
         )
         with context.begin_transaction():
             context.run_migrations()
+        if is_sqlite:
+            violations = connection.exec_driver_sql("PRAGMA foreign_key_check").fetchall()
+            connection.exec_driver_sql("PRAGMA foreign_keys=ON")
+            connection.commit()
+            if violations:
+                raise RuntimeError(f"Foreign key violations after migration: {violations[:10]}")
     connectable.dispose()
 
 

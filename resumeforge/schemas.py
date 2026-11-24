@@ -11,6 +11,8 @@ DemandTier = Literal["high", "very_high", "emerging"]
 SourceType = Literal["pasted_text", "image_extract", "pdf_extract", "url_extract"]
 EmploymentType = Literal["Full-time", "Part-time", "Contract", "Freelance", "Internship"]
 SkillProficiency = Literal["Core", "Proficient", "Working"]
+JobPlatform = Literal["onlinejobs_ph", "linkedin", "upwork", "jobstreet", "indeed", "agency", "other"]
+JobSourceType = Literal["pasted_text", "url_extract"]
 CredentialType = Literal["tech", "bpo_ops", "tesda", "healthcare", "finance", "language", "industry"]
 
 RUBRIC_KEYS = (
@@ -156,6 +158,7 @@ class ResumeDraftInput(BaseModel):
     certifications: list[ResumeCertificationInput] = Field(default_factory=list)
     projects: list[ResumeProjectInput] = Field(default_factory=list)
     languages: list[ResumeLanguageInput] = Field(default_factory=list)
+    target_job_posting_key: str | None = Field(default=None, max_length=120)
 
 
 class ResumeReviewInput(BaseModel):
@@ -177,3 +180,52 @@ class ResumeReviewInput(BaseModel):
             if not (1 <= int(score) <= 5):
                 raise ValueError(f"rubric_scores[{key!r}] must be 1..5, got {score}")
         return self
+
+
+class JobKeywordsInput(BaseModel):
+    """Requirements extracted from a job post; mirrors Resume-Matcher's `JobKeywords` contract."""
+
+    role: str = Field(min_length=2, max_length=200)
+    company: str = ""
+    required_skills: list[str] = Field(min_length=1)
+    preferred_skills: list[str] = Field(default_factory=list)
+    experience_requirements: list[str] = Field(default_factory=list)
+    education_requirements: list[str] = Field(default_factory=list)
+    key_responsibilities: list[str] = Field(default_factory=list)
+    keywords: list[str] = Field(default_factory=list)
+    experience_years: int | None = Field(default=None, ge=0, le=40)
+    seniority_level: str | None = None
+
+
+class JobPostingInput(BaseModel):
+    """A real public remote job post (PII-scrubbed) used as an external target for ATS scoring."""
+
+    posting_key: str = Field(min_length=3, max_length=120)
+    niche_slug: str = Field(min_length=2, max_length=80)
+    title: str = Field(min_length=2, max_length=200)
+    employer_type: str = Field(min_length=3, max_length=200)
+    platform: JobPlatform
+    source_type: JobSourceType = "pasted_text"
+    source_url: str | None = Field(default=None, max_length=500)
+    remote_setup: str = Field(min_length=2, max_length=160)
+    timezone_overlap: str | None = Field(default=None, max_length=160)
+    pay_band: str | None = Field(default=None, max_length=160)
+    description_text: str = Field(min_length=80)
+    keywords: JobKeywordsInput
+    captured_on: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
+    pii_scrubbed: bool = True
+
+
+class AtsRunInput(BaseModel):
+    """A Resume-Matcher result recorded against a resume's target job posting."""
+
+    posting_key: str | None = Field(default=None, max_length=120)
+    tool: str = "resume-matcher"
+    tool_version: str = Field(min_length=1, max_length=32)
+    overall_score: float = Field(ge=0.0, le=100.0)
+    sub_scores: dict[str, float] = Field(default_factory=dict)
+    missing_keywords: list[str] = Field(default_factory=list)
+    recommendations: list[str] = Field(default_factory=list)
+    parse_check_ok: bool
+    parse_score: float | None = Field(default=None, ge=0.0, le=100.0)
+    parse_issues: list[str] = Field(default_factory=list)
