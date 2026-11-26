@@ -8,7 +8,7 @@ Purpose: a consistency reference for the ResumeForge record. Every number on the
 | 2023-05 → 2023-11 | Eskwelabs | Internship | 7 |
 | 2024-01 → 2024-09 | Saltgum Supply (fictional AU outdoor-gear Shopify brand) | Freelance | 9 |
 | 2024-10 → 2025-05 | Casefront Legal Marketing (fictional Texas PI-firm marketing agency) | Contract | 8 |
-| 2025-06 → present (2026-11) | Those Who Care Co (fictional Florida outpatient practice) | Full-time | 18 |
+| 2025-06 → 2026-11 (ended; owner's decision 2026-11-27) | Those Who Care Co (fictional Florida outpatient practice) | Full-time | 18 |
 
 Covered months: 42 → 3.5 years. Gap months: 2023-12 only.
 
@@ -18,7 +18,7 @@ Covered months: 42 → 3.5 years. Gap months: 2023-12 only.
 | "3.5 years in Python and workflow automation" | 42 covered months; Python used from the internship onward. |
 | "2.5 years shipping Claude API integrations and self-hosted n8n workflows" | n8n from 2024-01 (2.9 yrs). Claude tool use from its 2024-04 beta, used at Saltgum from 2024-05 (2.5 yrs). Agents proper start at Casefront (2024-10), so the summary says "integrations" for the 2.5 years and "Builds AI agents" separately. |
 
-## Those Who Care Co (2025-06 → present)
+## Those Who Care Co (2025-06 → 2026-11)
 Setting: outpatient practice with a 4-person intake team. Before Ace: web forms and faxes read by hand, replies typed from templates in GoHighLevel.
 Hosting: n8n self-hosted on Docker in a US AWS region, so patient data stays in the US.
 Data flow: web forms and cloud-fax PDFs → OCR → pattern-based masking of direct identifiers (name, DOB, phone, member ID; member ID is parsed by rule, never by the model) → Claude extracts payer, referral, and visit reason from the masked text → results re-linked by record ID.
@@ -81,13 +81,13 @@ Build order: CX queue audit and ticket triage (2024-01 to 04) → refund routing
 | Structured Outputs | 0.8 | Beta 2025-11-14 (1.0 max); used only with synthetic data in the eval kit. |
 | n8n (Self-Hosted, Error Handling) | 2.8 | Since 2024-01 (2.9 max). |
 | REST APIs, Webhooks | 2.8 each | Since 2024-01. |
-| GoHighLevel (CRM) | 1.4 | Current role only. |
+| GoHighLevel (CRM) | 1.4 | Those Who Care Co role only. |
 | Shopify Admin API (GraphQL) | 0.7 | Saltgum only (9 months). |
 | Python | 3.5 | Since the internship. |
-| TypeScript / JavaScript (Node.js) | 1.4 | Current role (MCP server). |
+| TypeScript / JavaScript (Node.js) | 1.4 | Those Who Care Co role (MCP server). |
 | PostgreSQL (SQL) | 0.6 | Casefront. |
 | Docker | 2.8 | Self-hosted n8n since 2024-01. |
-| AWS | 1.4 | Current role (US-region hosting). |
+| AWS | 1.4 | Those Who Care Co role (US-region hosting). |
 | GitHub Actions | 1.0 | Eval kit CI. |
 | Evals / Human-in-the-Loop Review | 1.9 | Approval queue from 2025-01 at Casefront. |
-| PHI Masking / HIPAA Audit Controls | 1.4 | Current role. |
+| PHI Masking / HIPAA Audit Controls | 1.4 | Those Who Care Co role. |

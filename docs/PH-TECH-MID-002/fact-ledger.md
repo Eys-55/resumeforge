@@ -124,7 +124,7 @@ Method notes that affect confidence:
 - "Shipped the agency's first Python MCP server over its intake database and set it up in Claude Desktop for 6 account managers, who use it to pull lead status and source reports." Date this to 2025.
 - "Routed AI-drafted follow-ups through a Slack approval queue before sending" is fine as written.
 
-**Job C, Those Who Care Co (2025-06 to present)**
+**Job C, Those Who Care Co (2025-06 to 2026-11)**
 - "Run a self-hosted n8n patient-intake pipeline, under BAAs with Anthropic, HighLevel and Google Workspace, that extracts insurance, referral and symptom fields from 1,900 web and cloud-fax inquiries a year using Claude tool-use schemas (structured outputs since 2026)."
 - "Mask direct identifiers (name, date of birth, phone, address, member ID) before each Claude API call and re-link results by record ID; log every call (user, record, time, prompt version) for Security Rule audit controls."
 - "Route triaged inquiries into HIPAA-enabled GoHighLevel pipelines and send PHI-free Google Chat alerts."
@@ -181,7 +181,7 @@ The verdicts in section 1 were written against the draft before the rewrite. Eve
 | Job B MCP "in Claude" | Now "onboarded account managers in Claude Desktop"; server is "read-only". |
 | Job C MCP server and third-party data flows | Now "in-house" server whose tools "give the routing agent only record IDs and status codes". |
 | PreToolUse wording | Project: "A PreToolUse Bash hook that denies n8n import:workflow and API pushes until a validator clears the exported JSON ...". |
-| Agent Skills shipped 2025-10-16 | Used only in the current role and the project; both dated after release. |
+| Agent Skills shipped 2025-10-16 | Used only in the Those Who Care Co role and the project; both dated after release. |
 | Claude Code at the practice | Bullet says "PHI-free n8n QA in Claude Code". |
 | "Error branches" | Now "retries and error workflows"; skill "n8n (Self-Hosted, Error Handling)". |
 | "Hard-coded credentials" | Now "inline secrets". |

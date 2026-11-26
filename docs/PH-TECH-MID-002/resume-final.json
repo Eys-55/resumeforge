@@ -30,8 +30,8 @@
       "location": "Florida, US (Remote from Philippines)",
       "employment_type": "Full-time",
       "start_date": "2025-06",
-      "end_date": "present",
-      "is_current": true,
+      "end_date": "2026-11",
+      "is_current": false,
       "bullets": [
         {
           "text": "Built an n8n pipeline on US-region AWS with retries and error workflows, using Claude tool-use schemas to extract payer, referral, and visit reason from 1,900 yearly web forms and OCR'd faxes at 96% staff-verified accuracy.",
@@ -45,7 +45,7 @@
           ]
         },
         {
-          "text": "Cut median business-hours first-reply time on web inquiries from 13 to 6 minutes in 3 months with a Claude routing agent that posts Google Chat alerts without PHI and feeds HIPAA-enabled GoHighLevel pipelines.",
+          "text": "Cut median business-hours first-reply time on web inquiries from 13 to 6 minutes in 3 months with a Claude routing agent that posted Google Chat alerts without PHI and fed HIPAA-enabled GoHighLevel pipelines.",
           "action_verb": "Cut",
           "metric_value": "13 to 6 min",
           "tags": [
@@ -55,7 +55,7 @@
           ]
         },
         {
-          "text": "Developed an in-house TypeScript MCP server whose 7 scheduling, eligibility, and intake-status tools give the routing agent only record IDs and status codes, replacing staff lookups across 3 systems.",
+          "text": "Developed an in-house TypeScript MCP server whose 7 scheduling, eligibility, and intake-status tools gave the routing agent only record IDs and status codes, replacing staff lookups across 3 systems.",
           "action_verb": "Developed",
           "metric_value": "7 MCP tools",
           "tags": [
@@ -75,7 +75,7 @@
           ]
         },
         {
-          "text": "Raised staff approval of first-draft replies from 72% to 91% by revising versioned system prompts against a Python eval harness that scores 250 drafts per release on accuracy, tone, and escalation rules.",
+          "text": "Raised staff approval of first-draft replies from 72% to 91% by revising versioned system prompts against a Python eval harness that scored 250 drafts per release on accuracy, tone, and escalation rules.",
           "action_verb": "Raised",
           "metric_value": "72% to 91%",
           "tags": [
