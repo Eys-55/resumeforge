@@ -1,0 +1,459 @@
+{
+  "resume_code": "PH-TECH-MID-002",
+  "status": "gold_standard",
+  "niche_slug": "tech-ai-automation",
+  "role_slug": "ai-workflow-automation-mid",
+  "pattern_key": "ph-tech-ai-ghl-mid-2026-01",
+  "seniority": "mid",
+  "target_role_title": "AI Automation Engineer",
+  "layout_archetype": "single-column-ats",
+  "full_name": "Ace Canacan",
+  "headline": "AI Automation Engineer | Claude Code, AI Agents, MCP Servers & n8n | Python, TypeScript & API Integrations",
+  "email": "ace.canacan@example.ph",
+  "phone": "+63 917 000 4218",
+  "city": "Philippines",
+  "region": "Philippines",
+  "work_setup_preference": "Remote",
+  "timezone_readiness": "US EST / PST Overlap",
+  "expected_salary_php": 130000,
+  "linkedin_slug": null,
+  "portfolio_url": "https://eys-55.github.io/ace-canacan-portfolio",
+  "professional_summary": "AI Automation Engineer with 3.5 years in Python and workflow automation, including 2.5 years shipping Claude API integrations and self-hosted n8n workflows for US healthcare, US legal marketing, and Australian e-commerce teams. Builds AI agents, MCP servers, and Claude Code tooling (subagents, hooks, Agent Skills), gating client-facing drafts behind versioned system prompts, evals, and human review.",
+  "total_years_experience": 3.5,
+  "variant_of": "PH-TECH-MID-001",
+  "quality_score": 35,
+  "experiences": [
+    {
+      "company_name": "Those Who Care Co",
+      "company_archetype": "Outpatient Healthcare Practice (Florida, US)",
+      "role_title": "AI Automation Engineer",
+      "location": "Florida, US (Remote from Philippines)",
+      "employment_type": "Full-time",
+      "start_date": "2025-06",
+      "end_date": "present",
+      "is_current": true,
+      "bullets": [
+        {
+          "text": "Built an n8n pipeline on US-region AWS with retries and error workflows, using Claude tool-use schemas to extract payer, referral, and visit reason from 1,900 yearly web forms and OCR'd faxes at 96% staff-verified accuracy.",
+          "action_verb": "Built",
+          "metric_value": "96% staff-verified accuracy",
+          "tags": [
+            "n8n",
+            "aws",
+            "claude-tool-use",
+            "healthcare"
+          ]
+        },
+        {
+          "text": "Cut median business-hours first-reply time on web inquiries from 13 to 6 minutes in 3 months with a Claude routing agent that posts Google Chat alerts without PHI and feeds HIPAA-enabled GoHighLevel pipelines.",
+          "action_verb": "Cut",
+          "metric_value": "13 to 6 min",
+          "tags": [
+            "ai-agents",
+            "gohighlevel",
+            "google-chat"
+          ]
+        },
+        {
+          "text": "Developed an in-house TypeScript MCP server whose 7 scheduling, eligibility, and intake-status tools give the routing agent only record IDs and status codes, replacing staff lookups across 3 systems.",
+          "action_verb": "Developed",
+          "metric_value": "7 MCP tools",
+          "tags": [
+            "mcp",
+            "typescript",
+            "ai-agents"
+          ]
+        },
+        {
+          "text": "Masked direct identifiers (name, DOB, phone, member ID) in form and OCR text before each Claude API call under a BAA, re-linking results by record ID and logging every request for HIPAA audit controls.",
+          "action_verb": "Masked",
+          "metric_value": null,
+          "tags": [
+            "phi-masking",
+            "hipaa",
+            "audit-controls"
+          ]
+        },
+        {
+          "text": "Raised staff approval of first-draft replies from 72% to 91% by revising versioned system prompts against a Python eval harness that scores 250 drafts per release on accuracy, tone, and escalation rules.",
+          "action_verb": "Raised",
+          "metric_value": "72% to 91%",
+          "tags": [
+            "evals",
+            "prompt-engineering",
+            "python"
+          ]
+        },
+        {
+          "text": "Standardized PHI-free n8n QA in Claude Code with a review subagent, a deploy-gate hook, and Agent Skills, shipping runbook documentation with each of 14 releases and shortening delivery from 9 to 4 working days.",
+          "action_verb": "Standardized",
+          "metric_value": "9 to 4 days",
+          "tags": [
+            "claude-code",
+            "agent-skills",
+            "hooks",
+            "documentation"
+          ]
+        }
+      ]
+    },
+    {
+      "company_name": "Casefront Legal Marketing",
+      "company_archetype": "Personal Injury Law Firm Marketing Agency (Texas, US)",
+      "role_title": "AI Automation Engineer",
+      "location": "Texas, US (Remote from Philippines)",
+      "employment_type": "Contract",
+      "start_date": "2024-10",
+      "end_date": "2025-05",
+      "is_current": false,
+      "bullets": [
+        {
+          "text": "Automated case-intake triage for 9 personal-injury firms with an n8n and Claude tool-use agent that classified 3,200 web leads by case type (motor vehicle, trucking, premises), misclassifying under 3%.",
+          "action_verb": "Automated",
+          "metric_value": "under 3% misclassified",
+          "tags": [
+            "ai-agents",
+            "n8n",
+            "claude-tool-use",
+            "legal-intake"
+          ]
+        },
+        {
+          "text": "Flagged adverse-party names for each firm's conflict check and incident dates nearing Texas's two-year statute of limitations as structured JSON, cutting lead screening from 25 to 8 minutes.",
+          "action_verb": "Flagged",
+          "metric_value": "25 to 8 min",
+          "tags": [
+            "claude-tool-use",
+            "crm",
+            "rest-apis"
+          ]
+        },
+        {
+          "text": "Shipped, as sole engineer, the agency's first read-only Python MCP server over its PostgreSQL intake database, then onboarded account managers in Claude Desktop with a plain-language guide.",
+          "action_verb": "Shipped",
+          "metric_value": null,
+          "tags": [
+            "mcp",
+            "python",
+            "postgresql",
+            "documentation"
+          ]
+        },
+        {
+          "text": "Routed every AI-drafted follow-up through a Slack approval queue for client-firm intake staff, where 84% of 2,100 drafts passed unedited.",
+          "action_verb": "Routed",
+          "metric_value": "84% approved unedited",
+          "tags": [
+            "human-in-the-loop",
+            "slack"
+          ]
+        }
+      ]
+    },
+    {
+      "company_name": "Saltgum Supply",
+      "company_archetype": "Australian Outdoor Gear Shopify Brand",
+      "role_title": "Shopify & AI Automation Developer",
+      "location": "Australia (Remote from Philippines)",
+      "employment_type": "Freelance",
+      "start_date": "2024-01",
+      "end_date": "2024-09",
+      "is_current": false,
+      "bullets": [
+        {
+          "text": "Audited the CX queue, then built self-hosted n8n workflows on Docker, triggered by Gorgias HTTP integrations, that triaged 2,400 monthly tickets for a 6-person team using Shopify GraphQL Admin API return status.",
+          "action_verb": "Audited",
+          "metric_value": "2,400 tickets/mo",
+          "tags": [
+            "n8n",
+            "docker",
+            "gorgias",
+            "shopify-admin-api"
+          ]
+        },
+        {
+          "text": "Enriched 1,150 variant listings via Claude tool use against one JSON schema, cutting catalog updates from 3 days to 5 hours per drop.",
+          "action_verb": "Enriched",
+          "metric_value": "3 days to 5 hrs",
+          "tags": [
+            "claude-tool-use",
+            "shopify"
+          ]
+        },
+        {
+          "text": "Reduced refund resolution from 4.2 to 1.6 days by sending Shopify return/refund webhooks via REST APIs to Gorgias and a Google Sheets log.",
+          "action_verb": "Reduced",
+          "metric_value": "4.2 to 1.6 days",
+          "tags": [
+            "shopify",
+            "gorgias",
+            "rest-apis",
+            "google-sheets"
+          ]
+        }
+      ]
+    },
+    {
+      "company_name": "Eskwelabs",
+      "company_archetype": "Philippine Data Science Organization & Industry-Partner Engagement",
+      "role_title": "Data Science Intern",
+      "location": "Philippines",
+      "employment_type": "Internship",
+      "start_date": "2023-05",
+      "end_date": "2023-11",
+      "is_current": false,
+      "bullets": [
+        {
+          "text": "Researched and scored 240 construction firms for a construction-supply partner, yielding 180 qualified accounts and 18 quote requests.",
+          "action_verb": "Researched",
+          "metric_value": "18 quote requests",
+          "tags": [
+            "python",
+            "lead-scoring",
+            "construction"
+          ]
+        },
+        {
+          "text": "Wrote Python scripts to scrape directories, fill contact gaps, and flag duplicate firms in Google Sheets, saving 4 hours of list work weekly.",
+          "action_verb": "Wrote",
+          "metric_value": "4 hrs/wk saved",
+          "tags": [
+            "python",
+            "google-sheets",
+            "scraping"
+          ]
+        }
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Ateneo de Davao University",
+      "degree": "Bachelor of Science",
+      "field_of_study": "Information Systems",
+      "location": "Philippines",
+      "start_year": 2022,
+      "graduation_year": 2026,
+      "honors": null,
+      "relevant_coursework": []
+    }
+  ],
+  "skills": [
+    {
+      "category": "AI / LLM Engineering",
+      "name": "Claude Code (Subagents, Hooks, Agent Skills)",
+      "proficiency": "Core",
+      "years_used": 1.4
+    },
+    {
+      "category": "AI / LLM Engineering",
+      "name": "Claude API (Tool Use, Prompt Engineering)",
+      "proficiency": "Core",
+      "years_used": 2.5
+    },
+    {
+      "category": "AI / LLM Engineering",
+      "name": "MCP Servers",
+      "proficiency": "Core",
+      "years_used": 1.8
+    },
+    {
+      "category": "AI / LLM Engineering",
+      "name": "Structured Outputs",
+      "proficiency": "Proficient",
+      "years_used": 0.8
+    },
+    {
+      "category": "Workflow Automation",
+      "name": "n8n (Self-Hosted, Error Handling)",
+      "proficiency": "Core",
+      "years_used": 2.8
+    },
+    {
+      "category": "Workflow Automation",
+      "name": "REST APIs",
+      "proficiency": "Core",
+      "years_used": 2.8
+    },
+    {
+      "category": "Workflow Automation",
+      "name": "Webhooks",
+      "proficiency": "Core",
+      "years_used": 2.8
+    },
+    {
+      "category": "Workflow Automation",
+      "name": "GoHighLevel (CRM)",
+      "proficiency": "Proficient",
+      "years_used": 1.4
+    },
+    {
+      "category": "Workflow Automation",
+      "name": "Shopify Admin API (GraphQL)",
+      "proficiency": "Proficient",
+      "years_used": 0.7
+    },
+    {
+      "category": "Languages & Infrastructure",
+      "name": "Python",
+      "proficiency": "Core",
+      "years_used": 3.5
+    },
+    {
+      "category": "Languages & Infrastructure",
+      "name": "TypeScript / JavaScript (Node.js)",
+      "proficiency": "Proficient",
+      "years_used": 1.4
+    },
+    {
+      "category": "Languages & Infrastructure",
+      "name": "PostgreSQL (SQL)",
+      "proficiency": "Working",
+      "years_used": 0.6
+    },
+    {
+      "category": "Languages & Infrastructure",
+      "name": "Docker",
+      "proficiency": "Proficient",
+      "years_used": 2.8
+    },
+    {
+      "category": "Languages & Infrastructure",
+      "name": "AWS",
+      "proficiency": "Working",
+      "years_used": 1.4
+    },
+    {
+      "category": "Languages & Infrastructure",
+      "name": "GitHub Actions",
+      "proficiency": "Working",
+      "years_used": 1.0
+    },
+    {
+      "category": "Quality & Compliance",
+      "name": "Evals / Human-in-the-Loop Review",
+      "proficiency": "Proficient",
+      "years_used": 1.9
+    },
+    {
+      "category": "Quality & Compliance",
+      "name": "PHI Masking / HIPAA Audit Controls",
+      "proficiency": "Proficient",
+      "years_used": 1.4
+    }
+  ],
+  "certifications": [],
+  "projects": [
+    {
+      "name": "n8n Workflow Guard Skill Pack",
+      "role": "Creator",
+      "tech_stack": [
+        "Claude Code",
+        "Agent Skills",
+        "Hooks",
+        "Python"
+      ],
+      "summary": "A PreToolUse Bash hook that denies n8n import:workflow and API pushes until a validator clears the exported JSON of missing error workflows, inline secrets, and unlisted community nodes. Agent Skills hold the fix steps. Caught 37 risky changes across 3 Git repositories.",
+      "impact_metric": null,
+      "url": "https://eys-55.github.io/ace-canacan-portfolio/n8n-workflow-guard/"
+    },
+    {
+      "name": "Intake Reply Eval Kit",
+      "role": "Creator",
+      "tech_stack": [
+        "Python",
+        "pytest",
+        "Claude API",
+        "Structured Outputs",
+        "GitHub Actions"
+      ],
+      "summary": "A pytest suite that replays 120 synthetic intake scenarios against Claude prompts, grades replies with structured outputs, and fails the GitHub Actions check on regressions, running in under 4 minutes per pull request.",
+      "impact_metric": null,
+      "url": "https://eys-55.github.io/ace-canacan-portfolio/intake-reply-eval-kit/"
+    }
+  ],
+  "languages": [
+    {
+      "language": "English",
+      "proficiency": "Fluent"
+    },
+    {
+      "language": "Filipino",
+      "proficiency": "Native"
+    }
+  ],
+  "reviews": [
+    {
+      "reviewer_type": "agent_auditor",
+      "passed": true,
+      "total_score": 31,
+      "max_score": 35,
+      "rubric_scores": {
+        "deterministic_integrity": 5,
+        "ph_market_authenticity": 4,
+        "niche_tool_recency": 5,
+        "quantified_impact_realism": 4,
+        "readability_anti_slop": 5,
+        "cross_section_coherence": 4,
+        "pool_uniqueness_variety": 4
+      },
+      "deterministic_errors": [],
+      "critique_summary": "Revised variant is a credible 2026 PH remote AI Automation Engineer profile. Validator clean (0 errors, 15/15 quantified bullets, 12/12 skills evidenced, 0 em dashes); continuous reverse-chronological 3.5-year mid timeline. Tool claims follow Anthropic release dates: Claude tool-use JSON schemas in 2024, MCP from late 2024, Claude Code subagents, PreToolUse hooks, Agent Skills and structured outputs only in the 2025-06+ role. Metrics are role-native and believable. Soft spots (non-blocking): 'Philippines' city field rather than a real hub, unacknowledged working-student overlap with the final BS IS year, and Eskwelabs bullets reuse the parent's story and figures.",
+      "required_fixes": []
+    },
+    {
+      "reviewer_type": "agent_auditor",
+      "passed": true,
+      "total_score": 35,
+      "max_score": 35,
+      "rubric_scores": {
+        "deterministic_integrity": 5,
+        "ph_market_authenticity": 5,
+        "niche_tool_recency": 5,
+        "quantified_impact_realism": 5,
+        "readability_anti_slop": 5,
+        "cross_section_coherence": 5,
+        "pool_uniqueness_variety": 5
+      },
+      "deterministic_errors": [],
+      "critique_summary": "Final state after three audit rounds: 35/35 with 0 validator errors and 0 warnings. The timeline is reverse-chronological and matches 3.5 declared years in the mid band. The persona reads as a credible 2026 PH remote AI Automation Engineer serving a US healthcare practice, a US legal marketing agency and an Australian Shopify brand, with a PHP 130,000 expectation inside the role band and no biodata fields. Tool claims follow real release dates: Claude tool use from mid-2024, MCP from late 2024, Claude Code subagents, hooks, Agent Skills and structured outputs only from the 2025-06 role onward. Metrics are modest, role-native and carry their measurement basis (96% staff-verified extraction accuracy, business-hours first-reply time on web inquiries cut from 13 to 6 minutes, staff approval of first drafts raised from 72% to 91%). The summary is two tight sentences, bullets run 18-35 words with 15 distinct opening verbs, and no cliches or em dashes appear. All 17 skills are evidenced in bullets or projects, skill years match the roles where each tool appears, and the PHI masking, BAA and record-ID claims are consistent across bullets. The one-page render was checked against the record. The authenticity score rests on the owner-fixed generic location and plain education entry; the uniqueness score is judged on this resume alone per the owner's ruling on the archived parent, backed by a clean validator dedupe pass.",
+      "required_fixes": []
+    },
+    {
+      "reviewer_type": "agent_auditor",
+      "passed": true,
+      "total_score": 35,
+      "max_score": 35,
+      "rubric_scores": {
+        "deterministic_integrity": 5,
+        "ph_market_authenticity": 5,
+        "niche_tool_recency": 5,
+        "quantified_impact_realism": 5,
+        "readability_anti_slop": 5,
+        "cross_section_coherence": 5,
+        "pool_uniqueness_variety": 5
+      },
+      "deterministic_errors": [],
+      "critique_summary": "Fresh full audit after the URL migration and the PII guard hardening. tools/validate_resume.py and tools/pii_guard.py return 0 errors and 0 warnings: 3.5 computed years match 3.5 declared in the mid band, 13/15 bullets are quantified, 17/17 skills are evidenced, there are 0 em dashes, and the timeline is continuous, reverse-chronological and free of overlaps. The earlier blocker, where github.io URLs passed only through a regex gap, is closed. PERSONAL_URL_RE now matches <user>.github.io. Resume mode checks portfolio_url and every project url. The live site https://eys-55.github.io/ace-canacan-portfolio passes only through APPROVED_PERSONA_SITES, scoped to PH-TECH-MID-002 by exact prefix. AGENTS.md rule 1 records this as the single owner-approved exception, and tests/test_pii_guard.py proves the scoping, including rejection for other resume codes and look-alike prefixes (14 tests pass). The owner approved the exception in chat on 2026-11-26. On content, the persona is a credible 2026 PH remote AI Automation Engineer. Clients are a US healthcare practice (BAA, PHI masking, HIPAA audit logging), a Texas PI legal-marketing agency and an Australian Shopify brand, after an Eskwelabs internship. There are no biodata fields. A github.io portfolio is a natural, market-standard credential for PH developers applying to US/AU remote roles. Tools match release dates (Claude tool use, MCP servers, Claude Code subagents, hooks and Agent Skills, structured outputs, self-hosted n8n). KPIs are native to each role and modest (13 to 6 min first reply, 72% to 91% draft approval, under 3% misclassification, 25 to 8 min screening). Bullets are crisp and verb-led, the summary is free of cliches, and project stacks align with the experience. The only other row in the pool is the archived GHL variant, so this adds distinct value.",
+      "required_fixes": []
+    },
+    {
+      "reviewer_type": "agent_auditor",
+      "passed": true,
+      "total_score": 35,
+      "max_score": 35,
+      "rubric_scores": {
+        "deterministic_integrity": 5,
+        "ph_market_authenticity": 5,
+        "niche_tool_recency": 5,
+        "quantified_impact_realism": 5,
+        "readability_anti_slop": 5,
+        "cross_section_coherence": 5,
+        "pool_uniqueness_variety": 5
+      },
+      "deterministic_errors": [],
+      "critique_summary": "Final state: 35/35 with 0 validator errors and 0 warnings. The timeline is reverse-chronological and matches 3.5 declared years in the mid band. The persona reads as a credible 2026 PH remote AI Automation Engineer serving a US healthcare practice, a US legal marketing agency and an Australian Shopify brand, with a PHP 130,000 expectation inside the role band and no biodata fields. Tool claims follow real release dates: Claude tool use from mid-2024, MCP from late 2024, Claude Code subagents, hooks, Agent Skills and structured outputs only from the 2025-06 role onward. Metrics are modest, role-native and state their measurement basis. The summary is two tight sentences, bullets run 18-35 words with 15 distinct opening verbs, and no cliches or em dashes appear. All 17 skills are evidenced, and the PHI masking, BAA and record-ID claims are consistent across bullets. The resume carries no certifications by owner decision; proof of skill rests on the work history, two described projects and a linked portfolio. The one-page render ends with a Languages section and matches the record. The authenticity score rests on the owner-fixed generic location and plain education entry; the uniqueness score is judged on this resume alone per the owner's ruling on the archived parent, backed by a clean validator dedupe pass.",
+      "required_fixes": []
+    }
+  ]
+}

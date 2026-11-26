@@ -150,6 +150,7 @@ class ResumeDraftInput(BaseModel):
     portfolio_url: str | None = Field(default=None, max_length=300)
     professional_summary: str = Field(min_length=30)
     total_years_experience: float = Field(ge=0.0, le=40.0)
+    variant_of: str | None = Field(default=None, min_length=4, max_length=64)
     experiences: list[ResumeExperienceInput] = Field(min_length=1)
     education: list[ResumeEducationInput] = Field(min_length=1)
     skills: list[ResumeSkillInput] = Field(min_length=5)

@@ -26,9 +26,23 @@ PH_LANDLINE_RE = re.compile(
     r"(?<!\d)(?:\(0\d{1,2}\)[\s.-]?\d{3,4}[\s.-]?\d{4}|\+?63[\s.-]?2[\s.-]?\d{4}[\s.-]?\d{4})(?!\d)"
 )
 PERSONAL_URL_RE = re.compile(
-    r"(?:https?://)?(?:www\.)?(?:linkedin\.com/in/[A-Za-z0-9._%-]+|github\.com/[A-Za-z0-9._-]+)",
+    r"(?:https?://)?(?:www\.)?(?:linkedin\.com/in/[A-Za-z0-9._%-]+|github\.com/[A-Za-z0-9._-]+|[A-Za-z0-9-]+\.github\.io\b)",
     re.IGNORECASE,
 )
+
+# Owner-approved exceptions to the personal-URL ban (see AGENTS.md, rule 1).
+# Keyed by resume_code; a resume's portfolio_url and project urls may start with its prefix.
+# Approved by the repository owner on 2026-11-26: Ace Canacan's live portfolio site.
+APPROVED_PERSONA_SITES: dict[str, str] = {
+    "PH-TECH-MID-002": "https://eys-55.github.io/ace-canacan-portfolio",
+}
+
+
+def _is_approved_persona_url(resume_code: str, url: str) -> bool:
+    prefix = APPROVED_PERSONA_SITES.get(resume_code)
+    if not prefix:
+        return False
+    return url == prefix or url.startswith(prefix + "/")
 
 PH_GOV_ID_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("TIN", re.compile(r"(?:\bTIN\b[:\s#-]*\d{3}[-\s]?\d{3}[-\s]?\d{3}(?:[-\s]?\d{3,5})?|\b\d{3}-\d{3}-\d{3}-\d{3,5}\b)", re.IGNORECASE)),
@@ -216,14 +230,26 @@ def scan_payload(payload: dict[str, Any], *, mode: str = "pattern") -> PIIScanRe
                 "detail": "Resume phone must match synthetic PH format '+63 9XX 000 XXXX'.",
             })
 
-        portfolio_url = payload.get("portfolio_url")
-        if portfolio_url:
-            url_str = str(portfolio_url).strip()
-            if PERSONAL_URL_RE.search(url_str) and "example" not in url_str.lower() and "synthetic" not in url_str.lower():
+        resume_code = str(payload.get("resume_code") or "")
+        url_fields: list[tuple[str, Any]] = [("portfolio_url", payload.get("portfolio_url"))]
+        for idx, project in enumerate(payload.get("projects") or []):
+            if isinstance(project, dict):
+                url_fields.append((f"projects[{idx}].url", project.get("url")))
+        for field_name, raw_url in url_fields:
+            if not raw_url:
+                continue
+            url_str = str(raw_url).strip()
+            lowered = url_str.lower()
+            if (
+                PERSONAL_URL_RE.search(url_str)
+                and "example" not in lowered
+                and "synthetic" not in lowered
+                and not _is_approved_persona_url(resume_code, url_str)
+            ):
                 findings.append({
-                    "field": "portfolio_url",
+                    "field": field_name,
                     "category": "non_synthetic_url",
-                    "detail": f"portfolio_url looks like a real personal profile URL: {url_str}",
+                    "detail": f"{field_name} looks like a real personal profile URL: {url_str}",
                 })
 
     for field_path, text in _iter_strings(payload):

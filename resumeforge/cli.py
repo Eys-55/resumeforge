@@ -97,6 +97,7 @@ def _serialize_resume(resume: Resume) -> dict[str, Any]:
         "portfolio_url": resume.portfolio_url,
         "professional_summary": resume.professional_summary,
         "total_years_experience": resume.total_years_experience,
+        "variant_of": resume.variant_of_code,
         "quality_score": resume.quality_score,
         "experiences": [
             {
@@ -187,10 +188,17 @@ def _serialize_resume(resume: Resume) -> dict[str, Any]:
 
 
 def _resume_to_markdown(data: dict[str, Any]) -> str:
+    city_str = str(data.get("city") or "").strip()
+    region_str = str(data.get("region") or "").strip()
+    location_display = (
+        city_str
+        if city_str.lower() == region_str.lower() or not region_str
+        else f"{city_str}, {region_str}"
+    )
     lines = [
         f"# {data['full_name']} (`{data['resume_code']}`)",
         f"**{data['headline']}**",
-        f"{data['city']}, {data['region']} | {data['email']} | {data['phone']}",
+        f"{location_display} | {data['email']} | {data['phone']}",
         f"Work Setup: {data['work_setup_preference']} | Timezone: {data['timezone_readiness']} | Status: `{data['status']}`",
         "",
         "## Professional Summary",
@@ -755,6 +763,15 @@ def resume_import(
             err_console.print(f"[red]Cannot --update missing resume:[/red] {model.resume_code}")
             raise typer.Exit(code=1)
 
+        if model.variant_of:
+            if model.variant_of == model.resume_code:
+                err_console.print(f"[red]A resume cannot be a variant of itself:[/red] {model.resume_code}")
+                raise typer.Exit(code=1)
+            parent = session.scalar(select(Resume).where(Resume.resume_code == model.variant_of))
+            if parent is None:
+                err_console.print(f"[red]Unknown variant_of resume_code:[/red] {model.variant_of}")
+                raise typer.Exit(code=1)
+
         val = validate_resume_data(
             model.model_dump(),
             session=session,
@@ -789,6 +806,7 @@ def resume_import(
                 portfolio_url=model.portfolio_url,
                 professional_summary=model.professional_summary,
                 total_years_experience=model.total_years_experience,
+                variant_of_code=model.variant_of,
                 quality_score=None,
             )
             _replace_resume_children(resume, model)
@@ -814,6 +832,7 @@ def resume_import(
             existing.portfolio_url = model.portfolio_url
             existing.professional_summary = model.professional_summary
             existing.total_years_experience = model.total_years_experience
+            existing.variant_of_code = model.variant_of
             existing.quality_score = None
             _replace_resume_children(existing, model, session=session)
 
