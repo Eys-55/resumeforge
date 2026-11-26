@@ -409,6 +409,22 @@ def validate_resume_data(
             dup_name_stmt = dup_name_stmt.where(Resume.resume_code != exclude_resume_code)
             dup_email_stmt = dup_email_stmt.where(Resume.resume_code != exclude_resume_code)
 
+        # Targeted variants of the same fictional persona may share name/email with
+        # resumes they are explicitly linked to (parent, children, and siblings).
+        # Bullet near-duplicate checks below still apply to every other resume.
+        own_code = str(payload.get("resume_code") or exclude_resume_code or "").strip()
+        variant_of = str(payload.get("variant_of") or "").strip()
+        root_code = variant_of or own_code
+        if root_code:
+            linked_codes = {root_code}
+            linked_codes.update(
+                session.scalars(select(Resume.resume_code).where(Resume.variant_of_code == root_code)).all()
+            )
+            linked_codes.discard(own_code)
+            if linked_codes:
+                dup_name_stmt = dup_name_stmt.where(Resume.resume_code.not_in(linked_codes))
+                dup_email_stmt = dup_email_stmt.where(Resume.resume_code.not_in(linked_codes))
+
         dup_name = session.scalar(dup_name_stmt)
         if dup_name:
             errors.append(f"Duplicate full_name {full_name!r} already used by {dup_name}.")

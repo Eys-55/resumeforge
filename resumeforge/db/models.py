@@ -165,9 +165,9 @@ class Resume(Base):
     seniority: Mapped[str] = mapped_column(String(24), nullable=False, index=True)
     target_role_title: Mapped[str] = mapped_column(String(200), nullable=False)
     layout_archetype: Mapped[str] = mapped_column(String(80), nullable=False)
-    full_name: Mapped[str] = mapped_column(String(200), nullable=False, unique=True)
+    full_name: Mapped[str] = mapped_column(String(200), nullable=False)
     headline: Mapped[str] = mapped_column(String(250), nullable=False)
-    email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(String(255), nullable=False)
     phone: Mapped[str] = mapped_column(String(64), nullable=False)
     city: Mapped[str] = mapped_column(String(120), nullable=False)
     region: Mapped[str] = mapped_column(String(120), nullable=False)
@@ -178,6 +178,9 @@ class Resume(Base):
     portfolio_url: Mapped[str | None] = mapped_column(String(300))
     professional_summary: Mapped[str] = mapped_column(Text, nullable=False)
     total_years_experience: Mapped[float] = mapped_column(Float, nullable=False)
+    # Links a targeted variant to its parent resume of the same fictional persona.
+    # Persona uniqueness (full_name/email) is enforced by tools/validate_resume.py.
+    variant_of_code: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     quality_score: Mapped[int | None] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(

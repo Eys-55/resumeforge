@@ -12,3 +12,8 @@ tmp/
 *.egg-info/
 dist/
 build/
+
+# Personal exports carry real contact details; DB backups are local only
+exports/personal/
+data/*.bak*
+data/*-bak

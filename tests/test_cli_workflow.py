@@ -260,3 +260,100 @@ def test_full_cli_lifecycle(tmp_path) -> None:
     # 7. Write via db sql is physically blocked
     res_write = runner.invoke(app, [*base_args, "db", "sql", "DELETE FROM resumes"])
     assert res_write.exit_code != 0
+
+
+def _variant_resume(base: dict) -> dict:
+    variant = json.loads(json.dumps(base))
+    variant["resume_code"] = "PH-TECH-MID-102"
+    variant["variant_of"] = base["resume_code"]
+    variant["pattern_key"] = None
+    variant["headline"] = "AI Automation Engineer | Claude Code, MCP, n8n, Python"
+    variant["experiences"][0]["bullets"] = [
+        {
+            "text": "Shipped a Claude Code-built MCP server exposing 6 intake tools to n8n agents, trimming manual lookup work by 11 hours weekly.",
+            "action_verb": "Shipped",
+            "metric_value": "11 hrs/wk saved",
+            "tags": ["mcp", "n8n"],
+        },
+        {
+            "text": "Designed retry branches and dead-letter alerts for 22 self-hosted n8n workflows, recovering 340 failed webhook runs in one quarter.",
+            "action_verb": "Designed",
+            "metric_value": "340 runs recovered",
+            "tags": ["n8n", "reliability"],
+        },
+        {
+            "text": "Wrote a pytest eval harness scoring 400 Claude reply drafts per release, raising reviewer approval from 81% to 93%.",
+            "action_verb": "Wrote",
+            "metric_value": "93% approval",
+            "tags": ["evals", "python"],
+        },
+    ]
+    variant["experiences"][1]["bullets"] = [
+        {
+            "text": "Refactored PostgreSQL inventory queries behind Python REST services, lowering p95 response time from 900ms to 310ms for warehouse staff.",
+            "action_verb": "Refactored",
+            "metric_value": "p95 310ms",
+            "tags": ["python", "postgresql"],
+        },
+        {
+            "text": "Containerized 4 legacy Python services with Docker and HubSpot sync jobs, cutting onboarding setup from 2 days to 3 hours.",
+            "action_verb": "Containerized",
+            "metric_value": "3 hrs setup",
+            "tags": ["docker", "hubspot"],
+        },
+    ]
+    return variant
+
+
+def test_persona_variant_lifecycle(tmp_path) -> None:
+    db_path = tmp_path / "variant_test.db"
+    base_args = ["--db", str(db_path)]
+    assert runner.invoke(app, [*base_args, "db", "init"]).exit_code == 0
+
+    base = _sample_resume()
+    base["pattern_key"] = None
+    base_file = tmp_path / "base.json"
+    base_file.write_text(json.dumps(base))
+    res_base = runner.invoke(app, [*base_args, "resume", "import", "--json", str(base_file)])
+    assert res_base.exit_code == 0, res_base.output
+
+    # An unlinked resume that reuses the persona's name/email is still rejected.
+    unlinked = _variant_resume(base)
+    unlinked["variant_of"] = None
+    unlinked_file = tmp_path / "unlinked.json"
+    unlinked_file.write_text(json.dumps(unlinked))
+    res_unlinked = runner.invoke(app, [*base_args, "resume", "import", "--json", str(unlinked_file)])
+    assert res_unlinked.exit_code != 0
+    assert "duplicate full_name" in res_unlinked.output.lower()
+
+    # variant_of must point at an existing resume.
+    missing_parent = _variant_resume(base)
+    missing_parent["variant_of"] = "PH-TECH-MID-999"
+    missing_file = tmp_path / "missing.json"
+    missing_file.write_text(json.dumps(missing_parent))
+    res_missing = runner.invoke(app, [*base_args, "resume", "import", "--json", str(missing_file)])
+    assert res_missing.exit_code != 0
+    assert "unknown variant_of" in res_missing.output.lower()
+
+    # A linked variant that copies a parent bullet is still rejected.
+    copied = _variant_resume(base)
+    copied["experiences"][0]["bullets"][0] = base["experiences"][0]["bullets"][0]
+    copied_file = tmp_path / "copied.json"
+    copied_file.write_text(json.dumps(copied))
+    res_copied = runner.invoke(app, [*base_args, "resume", "import", "--json", str(copied_file)])
+    assert res_copied.exit_code != 0
+    assert "near-duplicate bullet" in res_copied.output.lower()
+
+    # A linked variant with its own bullets may share the persona's name/email.
+    variant_file = tmp_path / "variant.json"
+    variant_file.write_text(json.dumps(_variant_resume(base)))
+    res_variant = runner.invoke(app, [*base_args, "resume", "import", "--json", str(variant_file)])
+    assert res_variant.exit_code == 0, res_variant.output
+
+    for code in ("PH-TECH-MID-101", "PH-TECH-MID-102"):
+        res_val = runner.invoke(app, [*base_args, "resume", "validate", code, "--json"])
+        assert res_val.exit_code == 0, res_val.output
+        assert json.loads(res_val.stdout)["valid"] is True
+
+    shown = json.loads(runner.invoke(app, [*base_args, "resume", "show", "PH-TECH-MID-102", "--json"]).stdout)
+    assert shown["variant_of"] == "PH-TECH-MID-101"
