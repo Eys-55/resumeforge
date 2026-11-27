@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "resume-matcher": {
-      "command": "uv",
-      "args": ["run", "--quiet", "--directory", "${HOME}/Developer/Resume-Matcher/apps/backend", "resume-matcher-mcp"]
-    }
-  }
-}

@@ -38,6 +38,9 @@ SENIORITY_BOUNDS: dict[str, tuple[float, float]] = {
     "lead": (6.5, 22.0),
 }
 
+# Contact findings that are expected on a real person's own resume (personal mode only).
+PERSONAL_OWNER_CATEGORIES = {"non_synthetic_email", "non_synthetic_phone", "non_synthetic_url"}
+
 CLICHE_NAMES = (
     "juan dela cruz",
     "maria clara",
@@ -166,8 +169,14 @@ def validate_resume_data(
     session: Session | None = None,
     exclude_resume_code: str | None = None,
     reference_ym: str | None = None,
+    personal: bool = False,
 ) -> ValidationResult:
-    """Run all deterministic gold-standard checks on a structured resume payload."""
+    """Run all deterministic gold-standard checks on a structured resume payload.
+
+    `personal=True` is for a real person's own resume kept in local files (never SQL):
+    their real name, email, phone and profile URLs are allowed, and the synthetic-persona
+    rules (cliché names, seniority band) are skipped. Every quality check still runs.
+    """
     errors: list[str] = []
     warnings: list[str] = []
 
@@ -175,11 +184,13 @@ def validate_resume_data(
     pii_result = scan_payload(payload, mode="resume")
     if not pii_result.clean:
         for finding in pii_result.findings:
+            if personal and finding["category"] in PERSONAL_OWNER_CATEGORIES:
+                continue
             errors.append(f"PII/Security [{finding['category']}] {finding['field']}: {finding['detail']}")
 
     # 2. Cliché names, placeholders, outdated PH biodata, AI slop, em-dash spam
     full_name = str(payload.get("full_name") or "").strip()
-    if full_name.lower() in CLICHE_NAMES:
+    if not personal and full_name.lower() in CLICHE_NAMES:
         errors.append(f"Cliché synthetic name disallowed: {full_name!r}")
 
     narrative = _all_narrative_texts(payload)
@@ -321,7 +332,9 @@ def validate_resume_data(
         )
 
     seniority = str(payload.get("seniority") or "").strip()
-    if seniority not in SENIORITY_BOUNDS:
+    if personal and seniority not in SENIORITY_BOUNDS:
+        pass  # real people are not slotted into a persona seniority band
+    elif seniority not in SENIORITY_BOUNDS:
         errors.append(f"Invalid seniority {seniority!r}; expected one of {sorted(SENIORITY_BOUNDS)}.")
     elif declared_years >= 0:
         min_y, max_y = SENIORITY_BOUNDS[seniority]

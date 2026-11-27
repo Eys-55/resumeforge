@@ -17,7 +17,7 @@ Acts as an independent Philippine Hiring Manager proxy (`resume-auditor`) to ver
 2. `passed` is `true`.
 3. `total_score >= 30` out of `35`.
 4. Every one of the 7 rubric dimensions scores `>= 4` out of `5`.
-5. **External ATS gate:** the resume has a `target_job_posting_key`, and its latest Resume-Matcher run against that posting (`ph-resume-ats`) scores `>= RESUMEFORGE_ATS_MIN_SCORE` (default 80) with a clean PDF parse check.
+5. **External ATS gate:** the resume has a `target_job_posting_key`, and its latest ATS run against that posting (`ph-resume-ats`) scores `>= RESUMEFORGE_ATS_MIN_SCORE` (default 80) with a clean PDF parse check.
 
 If any gate fails, SQL marks the resume `needs_revision` with actionable `required_fixes`.
 
@@ -30,7 +30,7 @@ If any gate fails, SQL marks the resume `needs_revision` with actionable `requir
    uv run resumeforge niche show <niche_slug> --json
    uv run resumeforge job show <target_job_posting_key>
    ```
-   The `ats_runs` in `resume show` hold the external Resume-Matcher results. If the latest run is missing or below the threshold, send the resume back to `ph-resume-ats` before scoring the rubric.
+   The `ats_runs` in `resume show` hold the ATS results (built-in engine or Resume-Matcher). If the latest run is missing or below the threshold, send the resume back to `ph-resume-ats` before scoring the rubric.
 2. **Dispatch or run independent review using [audit-checklist.md](./references/audit-checklist.md):**
    - Check the resume against the 7 rubric dimensions (`deterministic_integrity`, `ph_market_authenticity`, `niche_tool_recency`, `quantified_impact_realism`, `readability_anti_slop`, `cross_section_coherence`, `pool_uniqueness_variety`).
    - Judge the resume **against its real target post** too: would that employer shortlist this Filipino remote applicant?

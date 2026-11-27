@@ -6,7 +6,7 @@ Guidance for resumes of Filipinos applying to **remote roles with overseas emplo
 
 ## What overseas remote employers scan for first
 
-1. **The exact role title from the post** in the headline. Resume-Matcher's title match and most ATS filters are literal.
+1. **The exact role title from the post** in the headline. The ATS title match and most real ATS filters are literal.
 2. **Proof of remote work**: "Remote", "Fully remote (US client)", the client or agency country, and how long the person worked without supervision.
 3. **Time-zone overlap**, stated concretely: "Available 9am–5pm EST (night shift PH)" or "4-hour AEST overlap". Avoid a vague "flexible".
 4. **Async and collaboration stack**, named in bullets and not only in skills: Slack, Google Workspace, Zoom/Google Meet, Loom, ClickUp/Asana/Trello/Notion, plus the role's core tools (GoHighLevel, HubSpot, Zapier, Make, n8n, Shopify, QuickBooks/Xero…).

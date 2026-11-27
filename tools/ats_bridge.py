@@ -32,6 +32,11 @@ def resume_matcher_dir() -> Path:
     return Path(raw).expanduser() if raw else DEFAULT_RM_DIR
 
 
+def resume_matcher_available() -> bool:
+    """True when an optional Resume-Matcher backend is installed (otherwise the built-in engine is used)."""
+    return (resume_matcher_dir() / "pyproject.toml").exists()
+
+
 def run_rm_tool(tool: str, args: dict[str, Any]) -> dict[str, Any]:
     """Invoke one Resume-Matcher CLI tool with JSON args and return its parsed JSON result."""
     rm_dir = resume_matcher_dir()

@@ -1,0 +1,78 @@
+{
+  "full_name": "Sample Person",
+  "headline": "Customer Support Team Lead | Zendesk, SLA Reporting, QA Coaching",
+  "target_role_title": "Customer Support Team Lead",
+  "email": "sample.person@example.com",
+  "phone": "+63 917 000 0000",
+  "city": "Quezon City",
+  "region": "Metro Manila",
+  "linkedin_slug": null,
+  "portfolio_url": null,
+  "work_setup_preference": "Remote or hybrid",
+  "timezone_readiness": "US and AU shifts",
+  "expected_salary_php": null,
+  "seniority": "mid",
+  "total_years_experience": 4.9,
+  "professional_summary": "Customer support team lead with nearly 5 years in SaaS and e-commerce support. Runs a 9-agent Zendesk queue across US hours, owns weekly SLA and CSAT reporting, and coaches agents through a QA scorecard that lifted first-contact resolution from 68% to 81%.",
+  "experiences": [
+    {
+      "company_name": "Brightline Commerce",
+      "company_archetype": "US e-commerce brand (remote)",
+      "role_title": "Customer Support Team Lead",
+      "location": "Remote",
+      "employment_type": "Full-time",
+      "start_date": "2024-07",
+      "end_date": "present",
+      "is_current": true,
+      "bullets": [
+        {"text": "Lead a 9-agent Zendesk team covering US hours, keeping first response under 2 hours for 96% of 5,400 monthly tickets.", "action_verb": "Lead", "metric_value": "96% under 2 hrs", "tags": ["zendesk", "sla"]},
+        {"text": "Built a 12-point QA scorecard and weekly coaching rhythm that raised first-contact resolution from 68% to 81% in two quarters.", "action_verb": "Built", "metric_value": "68% to 81% FCR", "tags": ["qa", "coaching"]},
+        {"text": "Wrote 40 macros and help-center articles for the top refund and shipping questions, cutting repeat contacts by 22%.", "action_verb": "Wrote", "metric_value": "22% fewer repeats", "tags": ["knowledge-base"]}
+      ]
+    },
+    {
+      "company_name": "Northwind SaaS Support Hub",
+      "company_archetype": "Makati BPO account for a US SaaS client",
+      "role_title": "Senior Customer Support Specialist",
+      "location": "Makati City",
+      "employment_type": "Full-time",
+      "start_date": "2022-01",
+      "end_date": "2024-06",
+      "is_current": false,
+      "bullets": [
+        {"text": "Resolved 60 to 70 chat and email tickets per shift on a US SaaS billing queue at 94% average CSAT.", "action_verb": "Resolved", "metric_value": "94% CSAT", "tags": ["csat", "chat-support"]},
+        {"text": "Built a Google Sheets SLA tracker from Zendesk exports that the account manager adopted for the weekly client report.", "action_verb": "Built", "metric_value": "adopted weekly", "tags": ["reporting", "google-sheets"]},
+        {"text": "Trained 14 new hires on billing escalations during nesting, and 13 cleared their 30-day QA target.", "action_verb": "Trained", "metric_value": "13 of 14 passed", "tags": ["training"]}
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Polytechnic University of the Philippines",
+      "degree": "Bachelor of Science in Business Administration",
+      "field_of_study": "Marketing Management",
+      "location": "Manila",
+      "start_year": 2017,
+      "graduation_year": 2021,
+      "honors": null,
+      "relevant_coursework": []
+    }
+  ],
+  "skills": [
+    {"category": "Support Tools", "name": "Zendesk", "proficiency": "advanced", "years_used": 4},
+    {"category": "Support Tools", "name": "Freshdesk", "proficiency": "intermediate", "years_used": 1},
+    {"category": "Support Tools", "name": "Shopify Admin", "proficiency": "intermediate", "years_used": 2},
+    {"category": "Reporting", "name": "Google Sheets", "proficiency": "advanced", "years_used": 4},
+    {"category": "Reporting", "name": "SLA Reporting", "proficiency": "advanced", "years_used": 3},
+    {"category": "Leadership", "name": "QA Coaching", "proficiency": "advanced", "years_used": 2},
+    {"category": "Leadership", "name": "Workforce Scheduling", "proficiency": "intermediate", "years_used": 2}
+  ],
+  "certifications": [
+    {"name": "Zendesk Support Administrator", "issuer": "Zendesk", "year_earned": 2024, "expiry_year": null, "credential_type": "certification"}
+  ],
+  "projects": [],
+  "languages": [
+    {"language": "English", "proficiency": "Professional"},
+    {"language": "Filipino", "proficiency": "Native"}
+  ]
+}

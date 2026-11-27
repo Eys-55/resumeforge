@@ -1,15 +1,16 @@
 # ResumeForge — Philippine Gold-Standard Resume Suite
 
-A SQL-backed Agent Skill suite for generating, auditing, and querying **strictly perfect, up-to-date (2025–2026), in-demand Philippine resumes** for game development.
+An Agent Skill suite for **ATS-ready resumes**: build and ATS-check your own real resume, or generate, audit and export fictional Philippine gold-standard resumes for a game. New here? Read [START_HERE.md](START_HERE.md).
 
 ## Architecture
 
 - **SQL System of Record (`resumeforge`):** SQLite (`data/resumes.db`, WAL mode + `mode=ro` read-only queries) managed with SQLAlchemy 2.0 + Alembic migrations and portable to PostgreSQL via `RESUMEFORGE_DATABASE_URL`.
 - **Canonical Skills (`.agents/skills/`):**
+  0. `my-resume` — Build, check, ATS-score and render a real person's own resume (local files in `my_resumes/`, never the DB).
   1. `ph-niche-scout` — Philippine 2025–2026 niche specs & role archetypes (`tech-ai-automation`, `bpo-va-ops`, extensible).
   2. `ph-resume-ingest` — Chat-only ingestion of public internet resumes with strict PII stripping (`tools/pii_guard.py`).
   3. `ph-resume-draft` — Synthesizes 100% fictional, modern Filipino resumes grounded in SQL niches & patterns.
-  4. `ph-resume-ats` — External ATS check with [Resume-Matcher](https://github.com/srbhr/Resume-Matcher) against a real target remote job post (deterministic score + PDF parse check).
+  4. `ph-resume-ats` — Deterministic ATS score + PDF parse check against a real target remote job post (built-in engine, optional Resume-Matcher).
   5. `ph-resume-review` — Independent Drafter-Reviewer quality gate (`tools/validate_resume.py` + `resume-auditor` rubric).
   6. `ph-resume-query` — Read-only SQL views (`v_gold_resumes_summary`, `v_niche_coverage`) & game-ready exports.
 
@@ -21,18 +22,22 @@ uv run resumeforge db init
 uv run resumeforge db stats
 ```
 
-### External ATS scorer (Resume-Matcher)
+Or just run `./setup.sh` (Windows: `setup.ps1`).
 
-The promotion gate needs [Resume-Matcher](https://github.com/srbhr/Resume-Matcher) (Apache-2.0) installed beside this repo. No LLM key is needed: ResumeForge calls only its deterministic `score_resume` and `parse_check_file` tools.
+### ATS engine
+
+The ATS check is built in (`tools/ats_local.py`): deterministic, no LLM, nothing extra to install. [Resume-Matcher](https://github.com/srbhr/Resume-Matcher) is an optional second engine; see [docs/optional-resume-matcher.md](docs/optional-resume-matcher.md). `RESUMEFORGE_ATS_MIN_SCORE` changes the default gate of 80.
+
+## Your Own Resume
 
 ```bash
-git clone --depth 1 --branch v1.4.0 https://github.com/srbhr/Resume-Matcher.git ~/Developer/Resume-Matcher
-cd ~/Developer/Resume-Matcher/apps/backend && uv sync   # pins litellm==1.104.2 (not the compromised 1.107.0)
+uv run resumeforge mine new "your name"
+uv run resumeforge mine check my_resumes/your-name/resume.json
+uv run resumeforge mine ats my_resumes/your-name/resume.json --job job.json --one-page
+uv run resumeforge ats score --resume any-resume.pdf --job job.json
 ```
 
-Set `RESUMEFORGE_RESUME_MATCHER_DIR` if it lives elsewhere, and `RESUMEFORGE_ATS_MIN_SCORE` to change the default gate of 80.
-
-## Core Workflow
+## Game Workflow
 
 1. **Scout / Inspect Niches**
    ```bash
@@ -54,7 +59,7 @@ Set `RESUMEFORGE_RESUME_MATCHER_DIR` if it lives elsewhere, and `RESUMEFORGE_ATS
    ```bash
    uv run resumeforge resume import --json draft.json
    ```
-5. **External ATS Check (Resume-Matcher)**
+5. **ATS Check**
    ```bash
    uv run resumeforge resume ats-check PH-TECH-MID-001
    ```

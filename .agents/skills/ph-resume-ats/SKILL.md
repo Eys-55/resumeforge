@@ -1,24 +1,29 @@
 ---
 name: ph-resume-ats
 description: >-
-  Use this skill to score a draft ResumeForge resume with the external Resume-Matcher
-  tool (deterministic ATS score + PDF parse check) against its real target remote
-  job posting, record the run in SQL, and loop honest revisions until it clears the
-  ATS gate required for gold_standard promotion.
+  Use this skill to ATS-score a draft ResumeForge game resume (deterministic, non-LLM
+  score + PDF parse check) against its real target remote job posting, record the run
+  in SQL, and loop honest revisions until it clears the ATS gate required for
+  gold_standard promotion. For a real person's own resume, use `my-resume` instead.
 ---
 
 # External ATS Check (`ph-resume-ats`)
 
-Gives every resume an outside judgment that isn't ours: [Resume-Matcher](https://github.com/srbhr/Resume-Matcher) (Apache-2.0) computes a **non-LLM ATS score** (keyword 40%, skills 20%, title 15%, sections 15%, date consistency 10%) and parse-checks the rendered PDF. Promotion to `gold_standard` requires the latest run against the resume's target posting to reach `RESUMEFORGE_ATS_MIN_SCORE` (default **80**) with a clean parse check.
+Gives every resume a judgment that isn't the drafter's: a **non-LLM ATS score** (keyword 40%, skills 20%, title 15%, sections 15%, date consistency 10%) plus a parse check of the rendered PDF's text layer. Promotion to `gold_standard` requires the latest run against the resume's target posting to reach `RESUMEFORGE_ATS_MIN_SCORE` (default **80**) with a clean parse check.
+
+## Engines
+
+- **Built-in (default, nothing to install):** `tools/ats_local.py`, same weights as Resume-Matcher.
+- **Resume-Matcher (optional, stricter second opinion):** used automatically when its backend is installed. See [docs/optional-resume-matcher.md](../../../docs/optional-resume-matcher.md). Force one with `--engine builtin|resume-matcher`.
 
 ## Prerequisites
 
-- Resume-Matcher backend installed at `~/Developer/Resume-Matcher/apps/backend` (tag `v1.4.0`, `uv sync`), or set `RESUMEFORGE_RESUME_MATCHER_DIR`. No LLM key is needed: ResumeForge calls only its deterministic `score_resume` and `parse_check_file` tools.
 - The resume was imported with `target_job_posting_key` pointing to a stored posting (`uv run resumeforge job list`).
+- Chrome or Chromium installed (used to render the PDF that gets parse-checked).
 
 ## Workflow
 
-1. **Run the check** (renders the PDF, scores it, parse-checks it, and records the run):
+1. **Run the check** (scores it, renders and parse-checks the PDF, and records the run):
    ```bash
    uv run resumeforge resume ats-check <resume_code>
    ```

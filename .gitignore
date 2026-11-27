@@ -17,3 +17,7 @@ build/
 exports/personal/
 data/*.bak*
 data/*-bak
+
+# Personal resumes (real people) never leave this machine
+my_resumes/*
+!my_resumes/.gitkeep

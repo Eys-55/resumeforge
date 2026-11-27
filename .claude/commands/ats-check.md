@@ -1,3 +1,3 @@
-# /ats-check - External Resume-Matcher ATS Check
+# /ats-check - ATS Score + PDF Parse Check
 
-Follow `.agents/skills/ph-resume-ats/SKILL.md` to score `$ARGUMENTS` against its target remote job posting with Resume-Matcher, record the run in SQL, and report the score, missing keywords, and next honest revision steps.
+If `$ARGUMENTS` is a game resume code (like `PH-TECH-MID-002`), follow `.agents/skills/ph-resume-ats/SKILL.md`. If it is a resume file (PDF, DOCX, TXT or JSON), follow the "Already have a finished resume file?" section of `.agents/skills/my-resume/SKILL.md`. Report the score, missing keywords, parse issues, and honest next steps.

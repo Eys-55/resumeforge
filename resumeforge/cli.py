@@ -62,6 +62,11 @@ app.add_typer(pattern_app, name="pattern")
 app.add_typer(resume_app, name="resume")
 app.add_typer(job_app, name="job")
 
+from resumeforge.personal import ats_app, mine_app  # noqa: E402
+
+app.add_typer(mine_app, name="mine")
+app.add_typer(ats_app, name="ats")
+
 console = Console()
 err_console = Console(stderr=True)
 
@@ -1029,7 +1034,7 @@ def resume_validate(ctx: typer.Context, resume_code: str, as_json: bool = typer.
 
 
 def _ats_gate(resume: Resume) -> tuple[bool, str]:
-    """External ATS gate: latest Resume-Matcher run against the target posting must clear the threshold."""
+    """ATS gate: the latest ATS run against the target posting must clear the threshold."""
     if resume.target_job_posting_id is None:
         return False, "no target job posting"
     runs = [r for r in resume.ats_runs if r.job_posting_id == resume.target_job_posting_id]
@@ -1122,13 +1127,22 @@ def resume_ats_check(
     resume_code: str,
     posting: str | None = typer.Option(None, "--posting", help="Posting key (defaults to the resume's target)."),
     one_page: bool = typer.Option(False, "--one-page", help="Parse-check the compact 1-page PDF layout."),
+    engine: str = typer.Option(
+        "auto", "--engine", help="auto (Resume-Matcher if installed, else built-in), builtin, or resume-matcher."
+    ),
     as_json: bool = typer.Option(False, "--json"),
 ) -> None:
-    """Score a resume with the external Resume-Matcher install (ATS score + PDF parse check) and record it."""
+    """ATS-score a resume against its target job post, parse-check the rendered PDF, and record the run."""
     import tempfile
 
-    from tools.ats_bridge import ResumeMatcherError, parse_check_pdf, score_resume, tool_version
+    from tools import ats_local
+    from tools.ats_bridge import resume_matcher_available
     from tools.render_pdf import render_resume_pdf
+
+    if engine not in {"auto", "builtin", "resume-matcher"}:
+        err_console.print(f"[red]Unknown --engine {engine!r}[/red]")
+        raise typer.Exit(code=1)
+    use_rm = engine == "resume-matcher" or (engine == "auto" and resume_matcher_available())
 
     db = _db_opt(ctx)
     with session_scope(db, read_only=True) as session:
@@ -1140,6 +1154,55 @@ def resume_ats_check(
         posting_key = target.posting_key
         keywords = json.loads(target.keywords_json)
         data = _serialize_resume(resume)
+
+    if not use_rm:
+        try:
+            score = ats_local.score(data, keywords)
+            with tempfile.TemporaryDirectory(prefix="resumeforge-ats-") as tmp:
+                pdf_path = render_resume_pdf(
+                    resume_code, Path(tmp) / f"{resume_code}.pdf", db_url=db, one_page=one_page
+                )
+                parse = ats_local.parse_check(pdf_path, expected_name=data["full_name"])
+        except (FileNotFoundError, RuntimeError, ValueError) as exc:
+            err_console.print(f"[red]ATS check failed:[/red] {exc}")
+            raise typer.Exit(code=1) from exc
+        run_in = AtsRunInput(
+            posting_key=posting_key,
+            tool=ats_local.ENGINE_NAME,
+            tool_version=ats_local.ENGINE_VERSION,
+            overall_score=score["overall_score"],
+            sub_scores=score["sub_scores"],
+            missing_keywords=score["missing_keywords"],
+            recommendations=score["recommendations"],
+            parse_check_ok=parse["parse_check_ok"],
+            parse_score=parse["parse_score"],
+            parse_issues=parse["parse_issues"],
+        )
+    else:
+        run_in = _resume_matcher_run(resume_code, data, keywords, posting_key, db, one_page)
+
+    with session_scope(db, read_only=False) as session:
+        resume = _load_resume_with_children(session, resume_code)
+        assert resume is not None
+        target = session.scalar(select(JobPosting).where(JobPosting.posting_key == posting_key))
+        row = _store_ats_run(session, resume, target, run_in)
+        session.flush()
+        payload = _serialize_ats_run(row)
+
+    if as_json:
+        typer.echo(json.dumps(payload, indent=2))
+    else:
+        _print_ats_result(resume_code, payload)
+
+
+def _resume_matcher_run(
+    resume_code: str, data: dict[str, Any], keywords: dict[str, Any], posting_key: str, db: str | None, one_page: bool
+) -> AtsRunInput:
+    """Score with an external Resume-Matcher install (optional; see docs/optional-resume-matcher.md)."""
+    import tempfile
+
+    from tools.ats_bridge import ResumeMatcherError, parse_check_pdf, score_resume, tool_version
+    from tools.render_pdf import render_resume_pdf
 
     try:
         score = score_resume(data, keywords)
@@ -1168,18 +1231,7 @@ def resume_ats_check(
         parse_score=float(parse["overall_score"]) if parse.get("overall_score") is not None else None,
         parse_issues=[f"{c.get('id')} ({c.get('severity')}): {c.get('status')}" for c in failed_checks],
     )
-    with session_scope(db, read_only=False) as session:
-        resume = _load_resume_with_children(session, resume_code)
-        assert resume is not None
-        target = session.scalar(select(JobPosting).where(JobPosting.posting_key == posting_key))
-        row = _store_ats_run(session, resume, target, run_in)
-        session.flush()
-        payload = _serialize_ats_run(row)
-
-    if as_json:
-        typer.echo(json.dumps(payload, indent=2))
-    else:
-        _print_ats_result(resume_code, payload)
+    return run_in
 
 
 @resume_app.command("review")

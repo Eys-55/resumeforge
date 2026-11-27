@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import os
 import shutil
 import subprocess
 import sys
@@ -23,6 +24,12 @@ from resumeforge.db.engine import session_scope  # noqa: E402
 DEFAULT_CHROME_PATHS = (
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+    r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+    r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+    r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+    r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
 )
 
 
@@ -62,11 +69,17 @@ def _find_chrome_binary(override: str | None = None) -> str:
     for candidate in DEFAULT_CHROME_PATHS:
         if Path(candidate).exists():
             return candidate
-    for name in ("google-chrome", "chromium", "chromium-browser"):
+    env_override = os.environ.get("RESUMEFORGE_CHROME", "").strip()
+    if env_override and Path(env_override).exists():
+        return env_override
+    for name in ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge"):
         found = shutil.which(name)
         if found:
             return found
-    raise FileNotFoundError("Google Chrome / Chromium binary not found for headless PDF rendering.")
+    raise FileNotFoundError(
+        "Google Chrome, Chromium or Microsoft Edge not found for PDF rendering. "
+        "Install Chrome or set RESUMEFORGE_CHROME to the browser executable."
+    )
 
 
 def _clean_github_handle(raw: str) -> str:
