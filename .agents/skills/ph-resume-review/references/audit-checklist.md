@@ -29,3 +29,11 @@ Score each of the 7 canonical rubric dimensions from `1` to `5`. Be strict — t
 
 ## 7. `pool_uniqueness_variety` (1–5)
 - Does this resume add distinct variety to the SQL pool (different persona name, PH hub, university, company mix, and bullet phrasing vs. existing rows)?
+
+## External ATS & Remote-Fit Checks
+
+- [ ] Resume has a `target_job_posting_key`, and the latest `ats_runs` entry for it is `>= 80` with `parse_check_ok = true`.
+- [ ] Headline matches the post's role title, or a truthful close variant.
+- [ ] Every post keyword the resume claims is **demonstrated** in a bullet or project, not only listed in skills (no keyword stuffing).
+- [ ] Remote readiness is concrete: client type and country, time-zone overlap, async tools (Slack, Loom, ClickUp…) used in bullets.
+- [ ] No PH-local-only artifacts that confuse overseas employers (PHP salary expectations where the post pays USD, biodata, long seminar lists).

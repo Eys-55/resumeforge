@@ -13,16 +13,18 @@ from rich.table import Table
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from resumeforge.config import REPO_ROOT, get_database_url
+from resumeforge.config import REPO_ROOT, get_ats_min_score, get_database_url
 from resumeforge.db.engine import get_engine, session_scope
 from resumeforge.db.migrations_helper import get_db_stats, upgrade_head
 from resumeforge.db.models import (
+    JobPosting,
     Niche,
     NicheRole,
     ReferencePattern,
     Resume,
     ResumeBullet,
     ResumeCertification,
+    ResumeAtsRun,
     ResumeEducation,
     ResumeExperience,
     ResumeLanguage,
@@ -33,6 +35,8 @@ from resumeforge.db.models import (
 from resumeforge.db.seed import seed_initial_niches
 from resumeforge.db.views import ensure_views, run_readonly_sql
 from resumeforge.schemas import (
+    AtsRunInput,
+    JobPostingInput,
     NicheCreateInput,
     ReferencePatternInput,
     ResumeDraftInput,
@@ -50,11 +54,13 @@ db_app = typer.Typer(help="Database lifecycle and read-only SQL operations", no_
 niche_app = typer.Typer(help="Philippine job niche and role archetype management", no_args_is_help=True)
 pattern_app = typer.Typer(help="Anonymized public resume blueprint management", no_args_is_help=True)
 resume_app = typer.Typer(help="Synthetic PH gold-standard resume lifecycle", no_args_is_help=True)
+job_app = typer.Typer(help="Real remote job postings used as external ATS targets", no_args_is_help=True)
 
 app.add_typer(db_app, name="db")
 app.add_typer(niche_app, name="niche")
 app.add_typer(pattern_app, name="pattern")
 app.add_typer(resume_app, name="resume")
+app.add_typer(job_app, name="job")
 
 console = Console()
 err_console = Console(stderr=True)
@@ -99,6 +105,9 @@ def _serialize_resume(resume: Resume) -> dict[str, Any]:
         "total_years_experience": resume.total_years_experience,
         "variant_of": resume.variant_of_code,
         "quality_score": resume.quality_score,
+        "target_job_posting_key": (
+            resume.target_job_posting.posting_key if resume.target_job_posting else None
+        ),
         "experiences": [
             {
                 "company_name": exp.company_name,
@@ -184,6 +193,41 @@ def _serialize_resume(resume: Resume) -> dict[str, Any]:
             }
             for rv in resume.reviews
         ],
+        "ats_runs": [_serialize_ats_run(run) for run in resume.ats_runs],
+    }
+
+
+def _serialize_ats_run(run: ResumeAtsRun) -> dict[str, Any]:
+    return {
+        "posting_key": run.job_posting.posting_key if run.job_posting else None,
+        "tool": run.tool,
+        "tool_version": run.tool_version,
+        "ats_score": run.ats_score,
+        "sub_scores": json.loads(run.sub_scores_json),
+        "missing_keywords": json.loads(run.missing_keywords_json),
+        "recommendations": json.loads(run.recommendations_json),
+        "parse_check_ok": run.parse_check_ok,
+        "parse_score": run.parse_score,
+        "parse_issues": json.loads(run.parse_issues_json),
+        "created_at": run.created_at.isoformat() if run.created_at else None,
+    }
+
+
+def _serialize_job_posting(posting: JobPosting) -> dict[str, Any]:
+    return {
+        "posting_key": posting.posting_key,
+        "niche_slug": posting.niche.slug if posting.niche else None,
+        "title": posting.title,
+        "employer_type": posting.employer_type,
+        "platform": posting.platform,
+        "source_type": posting.source_type,
+        "source_url": posting.source_url,
+        "remote_setup": posting.remote_setup,
+        "timezone_overlap": posting.timezone_overlap,
+        "pay_band": posting.pay_band,
+        "captured_on": posting.captured_on,
+        "keywords": json.loads(posting.keywords_json),
+        "description_text": posting.description_text,
     }
 
 
@@ -263,6 +307,8 @@ def _load_resume_with_children(session: Any, resume_code: str) -> Resume | None:
             selectinload(Resume.projects),
             selectinload(Resume.languages),
             selectinload(Resume.reviews),
+            selectinload(Resume.target_job_posting),
+            selectinload(Resume.ats_runs).selectinload(ResumeAtsRun.job_posting),
         )
     )
     return session.scalar(stmt)
@@ -614,6 +660,107 @@ def pattern_show(ctx: typer.Context, pattern_key: str) -> None:
 
 
 # ---------------------------------------------------------------------------
+# job posting commands
+# ---------------------------------------------------------------------------
+
+
+@job_app.command("add")
+def job_add(ctx: typer.Context, json_path: str = typer.Option(..., "--json", help="JSON file or '-' for stdin.")) -> None:
+    """Store a real, PII-scrubbed remote job post plus its extracted ATS keywords."""
+    db = _db_opt(ctx)
+    raw_dict = _read_json_arg(json_path)
+    model = JobPostingInput.model_validate(raw_dict)
+
+    scan = scan_payload(raw_dict, mode="pattern")
+    if not scan.clean:
+        err_console.print("[red]Blocked by pii_guard (job posting):[/red]")
+        for f in scan.findings:
+            err_console.print(f"  - [{f['category']}] {f['field']}: {f['detail']}")
+        raise typer.Exit(code=1)
+
+    with session_scope(db, read_only=False) as session:
+        niche = session.scalar(select(Niche).where(Niche.slug == model.niche_slug))
+        if niche is None:
+            err_console.print(f"[red]Unknown niche_slug:[/red] {model.niche_slug}")
+            raise typer.Exit(code=1)
+        if session.scalar(select(JobPosting).where(JobPosting.posting_key == model.posting_key)) is not None:
+            err_console.print(f"[red]posting_key already exists:[/red] {model.posting_key}")
+            raise typer.Exit(code=1)
+        session.add(
+            JobPosting(
+                posting_key=model.posting_key,
+                niche_id=niche.id,
+                title=model.title,
+                employer_type=model.employer_type,
+                platform=model.platform,
+                source_type=model.source_type,
+                source_url=model.source_url,
+                remote_setup=model.remote_setup,
+                timezone_overlap=model.timezone_overlap,
+                pay_band=model.pay_band,
+                description_text=model.description_text,
+                keywords_json=json.dumps(model.keywords.model_dump()),
+                captured_on=model.captured_on,
+                pii_scrubbed=True,
+            )
+        )
+
+    console.print(f"[green]Stored job posting:[/green] {model.posting_key} ({model.platform}, {model.niche_slug})")
+
+
+@job_app.command("list")
+def job_list(
+    ctx: typer.Context,
+    niche: str | None = typer.Option(None, "--niche", help="Filter by niche slug."),
+    as_json: bool = typer.Option(False, "--json"),
+) -> None:
+    """List stored remote job postings."""
+    db = _db_opt(ctx)
+    with session_scope(db, read_only=True) as session:
+        stmt = select(JobPosting).join(Niche).options(selectinload(JobPosting.niche)).order_by(JobPosting.id.desc())
+        if niche:
+            stmt = stmt.where(Niche.slug == niche)
+        payload = [
+            {
+                "posting_key": jp.posting_key,
+                "niche_slug": jp.niche.slug,
+                "title": jp.title,
+                "platform": jp.platform,
+                "employer_type": jp.employer_type,
+                "captured_on": jp.captured_on,
+            }
+            for jp in session.scalars(stmt).all()
+        ]
+    if as_json:
+        typer.echo(json.dumps(payload, indent=2))
+        return
+    table = Table(title="Remote Job Postings")
+    table.add_column("Posting Key", style="cyan")
+    table.add_column("Niche")
+    table.add_column("Title")
+    table.add_column("Platform")
+    table.add_column("Captured")
+    for jp in payload:
+        table.add_row(jp["posting_key"], jp["niche_slug"], jp["title"], jp["platform"], jp["captured_on"])
+    console.print(table)
+
+
+@job_app.command("show")
+def job_show(ctx: typer.Context, posting_key: str) -> None:
+    """Inspect a stored job posting (including extracted keywords) as JSON."""
+    db = _db_opt(ctx)
+    with session_scope(db, read_only=True) as session:
+        jp = session.scalar(
+            select(JobPosting).where(JobPosting.posting_key == posting_key).options(selectinload(JobPosting.niche))
+        )
+        if jp is None:
+            err_console.print(f"[red]Job posting not found:[/red] {posting_key}")
+            raise typer.Exit(code=1)
+        data = _serialize_job_posting(jp)
+    typer.echo(json.dumps(data, indent=2))
+
+
+# ---------------------------------------------------------------------------
 # resume commands
 # ---------------------------------------------------------------------------
 
@@ -753,6 +900,16 @@ def resume_import(
                 raise typer.Exit(code=1)
             pattern_id = pattern.id
 
+        target_posting_id: int | None = None
+        if model.target_job_posting_key:
+            posting = session.scalar(
+                select(JobPosting).where(JobPosting.posting_key == model.target_job_posting_key)
+            )
+            if posting is None:
+                err_console.print(f"[red]Unknown target_job_posting_key:[/red] {model.target_job_posting_key}")
+                raise typer.Exit(code=1)
+            target_posting_id = posting.id
+
         existing = _load_resume_with_children(session, model.resume_code)
         if existing is not None and not update:
             err_console.print(
@@ -789,6 +946,7 @@ def resume_import(
                 niche_id=niche.id,
                 niche_role_id=role_id,
                 reference_pattern_id=pattern_id,
+                target_job_posting_id=target_posting_id,
                 status="draft",
                 seniority=model.seniority,
                 target_role_title=model.target_role_title,
@@ -815,6 +973,7 @@ def resume_import(
             existing.niche_id = niche.id
             existing.niche_role_id = role_id
             existing.reference_pattern_id = pattern_id
+            existing.target_job_posting_id = target_posting_id
             existing.status = "draft"
             existing.seniority = model.seniority
             existing.target_role_title = model.target_role_title
@@ -869,6 +1028,160 @@ def resume_validate(ctx: typer.Context, resume_code: str, as_json: bool = typer.
         raise typer.Exit(code=1)
 
 
+def _ats_gate(resume: Resume) -> tuple[bool, str]:
+    """External ATS gate: latest Resume-Matcher run against the target posting must clear the threshold."""
+    if resume.target_job_posting_id is None:
+        return False, "no target job posting"
+    runs = [r for r in resume.ats_runs if r.job_posting_id == resume.target_job_posting_id]
+    if not runs:
+        return False, "no ATS run against target posting"
+    latest = max(runs, key=lambda r: r.id)
+    threshold = get_ats_min_score()
+    if latest.ats_score < threshold:
+        return False, f"ATS {latest.ats_score:.1f} < {threshold:.0f}"
+    if not latest.parse_check_ok:
+        return False, "PDF parse check failed"
+    return True, f"ATS {latest.ats_score:.1f} ok"
+
+
+def _store_ats_run(session: Any, resume: Resume, posting: JobPosting, run_in: AtsRunInput) -> ResumeAtsRun:
+    row = ResumeAtsRun(
+        resume_id=resume.id,
+        job_posting_id=posting.id,
+        tool=run_in.tool,
+        tool_version=run_in.tool_version,
+        ats_score=run_in.overall_score,
+        sub_scores_json=json.dumps(run_in.sub_scores),
+        missing_keywords_json=json.dumps(run_in.missing_keywords),
+        recommendations_json=json.dumps(run_in.recommendations),
+        parse_check_ok=run_in.parse_check_ok,
+        parse_score=run_in.parse_score,
+        parse_issues_json=json.dumps(run_in.parse_issues),
+    )
+    session.add(row)
+    return row
+
+
+def _resolve_ats_posting(session: Any, resume: Resume, posting_key: str | None) -> JobPosting:
+    if posting_key:
+        posting = session.scalar(select(JobPosting).where(JobPosting.posting_key == posting_key))
+        if posting is None:
+            err_console.print(f"[red]Job posting not found:[/red] {posting_key}")
+            raise typer.Exit(code=1)
+        return posting
+    if resume.target_job_posting is None:
+        err_console.print(
+            f"[red]{resume.resume_code} has no target_job_posting_key.[/red] Set it on import or pass --posting."
+        )
+        raise typer.Exit(code=1)
+    return resume.target_job_posting
+
+
+def _print_ats_result(resume_code: str, payload: dict[str, Any]) -> None:
+    threshold = get_ats_min_score()
+    score = payload["ats_score"]
+    color = "green" if score >= threshold and payload["parse_check_ok"] else "yellow"
+    console.print(
+        f"[{color}]ATS {score:.1f}/100[/{color}] for {resume_code} vs {payload['posting_key']} "
+        f"(threshold {threshold:.0f}; parse check {'ok' if payload['parse_check_ok'] else 'FAILED'})"
+    )
+    if payload["sub_scores"]:
+        console.print("  sub-scores: " + ", ".join(f"{k}={v}" for k, v in payload["sub_scores"].items()))
+    if payload["missing_keywords"]:
+        console.print("  missing keywords: " + ", ".join(payload["missing_keywords"]))
+    for rec in payload["recommendations"]:
+        console.print(f"  - {rec}")
+    for issue in payload["parse_issues"]:
+        console.print(f"  ! parse: {issue}")
+
+
+@resume_app.command("ats-record")
+def resume_ats_record(
+    ctx: typer.Context,
+    resume_code: str,
+    json_path: str = typer.Option(..., "--json", help="AtsRunInput JSON file or '-' for stdin."),
+) -> None:
+    """Record an externally computed Resume-Matcher result for a resume."""
+    db = _db_opt(ctx)
+    run_in = AtsRunInput.model_validate(_read_json_arg(json_path))
+    with session_scope(db, read_only=False) as session:
+        resume = _load_resume_with_children(session, resume_code)
+        if resume is None:
+            err_console.print(f"[red]Resume not found:[/red] {resume_code}")
+            raise typer.Exit(code=1)
+        posting = _resolve_ats_posting(session, resume, run_in.posting_key)
+        row = _store_ats_run(session, resume, posting, run_in)
+        session.flush()
+        payload = _serialize_ats_run(row)
+    _print_ats_result(resume_code, payload)
+
+
+@resume_app.command("ats-check")
+def resume_ats_check(
+    ctx: typer.Context,
+    resume_code: str,
+    posting: str | None = typer.Option(None, "--posting", help="Posting key (defaults to the resume's target)."),
+    one_page: bool = typer.Option(False, "--one-page", help="Parse-check the compact 1-page PDF layout."),
+    as_json: bool = typer.Option(False, "--json"),
+) -> None:
+    """Score a resume with the external Resume-Matcher install (ATS score + PDF parse check) and record it."""
+    import tempfile
+
+    from tools.ats_bridge import ResumeMatcherError, parse_check_pdf, score_resume, tool_version
+    from tools.render_pdf import render_resume_pdf
+
+    db = _db_opt(ctx)
+    with session_scope(db, read_only=True) as session:
+        resume = _load_resume_with_children(session, resume_code)
+        if resume is None:
+            err_console.print(f"[red]Resume not found:[/red] {resume_code}")
+            raise typer.Exit(code=1)
+        target = _resolve_ats_posting(session, resume, posting)
+        posting_key = target.posting_key
+        keywords = json.loads(target.keywords_json)
+        data = _serialize_resume(resume)
+
+    try:
+        score = score_resume(data, keywords)
+        with tempfile.TemporaryDirectory(prefix="resumeforge-ats-") as tmp:
+            pdf_path = render_resume_pdf(
+                resume_code, Path(tmp) / f"{resume_code}.pdf", db_url=db, one_page=one_page
+            )
+            parse = parse_check_pdf(pdf_path)
+        version = tool_version()
+    except (ResumeMatcherError, RuntimeError, ValueError) as exc:
+        err_console.print(f"[red]ATS check failed:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    failed_checks = [c for c in parse.get("checks", []) if c.get("status") != "pass"]
+    parse_ok = parse.get("extractability") == "full" and not any(
+        c.get("severity") == "high" for c in failed_checks
+    )
+    run_in = AtsRunInput(
+        posting_key=posting_key,
+        tool_version=version,
+        overall_score=float(score.get("overall_score", 0.0)),
+        sub_scores={k: float(v) for k, v in (score.get("sub_scores") or {}).items() if v is not None},
+        missing_keywords=list(score.get("missing_keywords") or []),
+        recommendations=list(score.get("recommendations") or []),
+        parse_check_ok=parse_ok,
+        parse_score=float(parse["overall_score"]) if parse.get("overall_score") is not None else None,
+        parse_issues=[f"{c.get('id')} ({c.get('severity')}): {c.get('status')}" for c in failed_checks],
+    )
+    with session_scope(db, read_only=False) as session:
+        resume = _load_resume_with_children(session, resume_code)
+        assert resume is not None
+        target = session.scalar(select(JobPosting).where(JobPosting.posting_key == posting_key))
+        row = _store_ats_run(session, resume, target, run_in)
+        session.flush()
+        payload = _serialize_ats_run(row)
+
+    if as_json:
+        typer.echo(json.dumps(payload, indent=2))
+    else:
+        _print_ats_result(resume_code, payload)
+
+
 @resume_app.command("review")
 def resume_review(
     ctx: typer.Context,
@@ -890,11 +1203,13 @@ def resume_review(
         data = _serialize_resume(resume)
         live_val = validate_resume_data(data, session=session, exclude_resume_code=resume_code)
 
+        ats_ok, ats_reason = _ats_gate(resume)
         gate_passed = (
             bool(review_in.passed)
             and total_score >= 30
             and min_dim >= 4
             and live_val.valid
+            and ats_ok
         )
         new_status = "gold_standard" if gate_passed else "needs_revision"
 
@@ -920,7 +1235,8 @@ def resume_review(
     else:
         console.print(
             f"[yellow]Marked needs_revision:[/yellow] {resume_code} "
-            f"(score {total_score}/35, min_dim={min_dim}, deterministic_errors={len(live_val.errors)})."
+            f"(score {total_score}/35, min_dim={min_dim}, deterministic_errors={len(live_val.errors)}, "
+            f"ats={ats_reason})."
         )
 
 

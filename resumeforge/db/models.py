@@ -55,6 +55,9 @@ class Niche(Base):
         back_populates="niche", cascade="all, delete-orphan"
     )
     resumes: Mapped[list[Resume]] = relationship(back_populates="niche")
+    job_postings: Mapped[list[JobPosting]] = relationship(
+        back_populates="niche", cascade="all, delete-orphan", order_by="JobPosting.id"
+    )
 
 
 class NicheRole(Base):
@@ -182,6 +185,9 @@ class Resume(Base):
     # Persona uniqueness (full_name/email) is enforced by tools/validate_resume.py.
     variant_of_code: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     quality_score: Mapped[int | None] = mapped_column(Integer)
+    target_job_posting_id: Mapped[int | None] = mapped_column(
+        ForeignKey("job_postings.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow
@@ -190,6 +196,7 @@ class Resume(Base):
     niche: Mapped[Niche] = relationship(back_populates="resumes")
     niche_role: Mapped[NicheRole | None] = relationship(back_populates="resumes")
     reference_pattern: Mapped[ReferencePattern | None] = relationship(back_populates="resumes")
+    target_job_posting: Mapped[JobPosting | None] = relationship(back_populates="resumes")
 
     experiences: Mapped[list[ResumeExperience]] = relationship(
         back_populates="resume", cascade="all, delete-orphan", order_by="ResumeExperience.sort_order"
@@ -211,6 +218,9 @@ class Resume(Base):
     )
     reviews: Mapped[list[ResumeReview]] = relationship(
         back_populates="resume", cascade="all, delete-orphan", order_by="ResumeReview.id"
+    )
+    ats_runs: Mapped[list[ResumeAtsRun]] = relationship(
+        back_populates="resume", cascade="all, delete-orphan", order_by="ResumeAtsRun.id"
     )
 
 
@@ -388,3 +398,76 @@ class ResumeReview(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utcnow)
 
     resume: Mapped[Resume] = relationship(back_populates="reviews")
+
+
+JOB_PLATFORMS = ("onlinejobs_ph", "linkedin", "upwork", "jobstreet", "indeed", "agency", "other")
+
+
+class JobPosting(Base):
+    """A real (PII-scrubbed) remote job post that fictional resumes are targeted at and ATS-scored against."""
+
+    __tablename__ = "job_postings"
+    __table_args__ = (
+        CheckConstraint(
+            "platform IN ('onlinejobs_ph', 'linkedin', 'upwork', 'jobstreet', 'indeed', 'agency', 'other')",
+            name="ck_job_postings_platform",
+        ),
+        CheckConstraint(
+            "source_type IN ('pasted_text', 'url_extract')",
+            name="ck_job_postings_source_type",
+        ),
+        CheckConstraint("pii_scrubbed = 1", name="ck_job_postings_pii_scrubbed"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    posting_key: Mapped[str] = mapped_column(String(120), nullable=False, unique=True, index=True)
+    niche_id: Mapped[int] = mapped_column(
+        ForeignKey("niches.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    employer_type: Mapped[str] = mapped_column(String(200), nullable=False)
+    platform: Mapped[str] = mapped_column(String(32), nullable=False)
+    source_type: Mapped[str] = mapped_column(String(32), nullable=False, default="pasted_text")
+    source_url: Mapped[str | None] = mapped_column(String(500))
+    remote_setup: Mapped[str] = mapped_column(String(160), nullable=False)
+    timezone_overlap: Mapped[str | None] = mapped_column(String(160))
+    pay_band: Mapped[str | None] = mapped_column(String(160))
+    description_text: Mapped[str] = mapped_column(Text, nullable=False)
+    keywords_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    captured_on: Mapped[str] = mapped_column(String(16), nullable=False)
+    pii_scrubbed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    niche: Mapped[Niche] = relationship(back_populates="job_postings")
+    resumes: Mapped[list[Resume]] = relationship(back_populates="target_job_posting")
+    ats_runs: Mapped[list[ResumeAtsRun]] = relationship(back_populates="job_posting")
+
+
+class ResumeAtsRun(Base):
+    """One external ATS evaluation (Resume-Matcher) of a resume against a job posting."""
+
+    __tablename__ = "resume_ats_runs"
+    __table_args__ = (
+        CheckConstraint("ats_score >= 0 AND ats_score <= 100", name="ck_resume_ats_score_bounds"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    resume_id: Mapped[int] = mapped_column(
+        ForeignKey("resumes.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    job_posting_id: Mapped[int] = mapped_column(
+        ForeignKey("job_postings.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    tool: Mapped[str] = mapped_column(String(64), nullable=False, default="resume-matcher")
+    tool_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    ats_score: Mapped[float] = mapped_column(Float, nullable=False)
+    sub_scores_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    missing_keywords_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    recommendations_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    parse_check_ok: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    parse_score: Mapped[float | None] = mapped_column(Float)
+    parse_issues_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    resume: Mapped[Resume] = relationship(back_populates="ats_runs")
+    job_posting: Mapped[JobPosting] = relationship(back_populates="ats_runs")

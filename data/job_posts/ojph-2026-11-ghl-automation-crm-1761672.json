@@ -1,0 +1,66 @@
+{
+  "posting_key": "ojph-2026-11-ghl-automation-crm-1761672",
+  "niche_slug": "tech-ai-automation",
+  "title": "GoHighLevel (GHL) Automation & CRM Specialist",
+  "employer_type": "AI marketing and automation company running multiple agency brands (CRM automation, healthcare patient acquisition, local SEO)",
+  "platform": "onlinejobs_ph",
+  "source_type": "url_extract",
+  "source_url": "https://www.onlinejobs.ph/jobseekers/job/gohighlevel-ghl-automation-crm-specialist-1761672",
+  "remote_setup": "Remote contract, part-time to start (20 hrs/week), long-term opportunity",
+  "timezone_overlap": "Not stated",
+  "pay_band": "USD 6 / hour",
+  "description_text": "Condensed from the public post. Configure and optimize the agency GoHighLevel account, create client subaccounts, build standard pipelines and stages, lead tracking, and custom fields. Configure calendars, scheduling, and reminders; build reusable templates and snapshots for client onboarding. Build email and SMS follow-up sequences, lead notifications, lead assignment, missed-call text-back, and reactivation workflows; troubleshoot errors and improve deliverability. Build GHL landing pages and funnels, connect forms, calendars, and CRM workflows, integrate Meta lead forms and Google Ads conversion tracking. Integrate third-party systems via native integrations, webhooks, n8n, or Zapier and test every lead journey from form submission to booking. Build onboarding workflows, client reporting dashboards, and SOPs. Healthcare brand: new patient inquiry funnels, intake scheduling, clinic calendar integrations, appointment reporting, following HIPAA, patient privacy, and consent rules. Required: professional GHL experience; workflows, triggers, pipelines, calendars, forms, funnels, snapshots; email and SMS automation; Meta and Google lead form integrations; independent troubleshooting; webhooks and APIs; clear English documentation. Preferred: agency multi-subaccount experience, AI chat/voice/appointment-booking automation, n8n/Zapier/Make, Stripe, healthcare or med spa practices, A2P 10DLC.",
+  "keywords": {
+    "role": "GoHighLevel (GHL) Automation & CRM Specialist",
+    "required_skills": [
+      "GoHighLevel",
+      "Workflows",
+      "Triggers",
+      "Pipelines",
+      "Calendars",
+      "Forms",
+      "Funnels",
+      "Snapshots",
+      "Webhooks",
+      "APIs"
+    ],
+    "preferred_skills": [
+      "n8n",
+      "Zapier",
+      "Make",
+      "Stripe",
+      "A2P 10DLC",
+      "appointment-booking automation",
+      "Meta lead forms",
+      "Google Ads conversion tracking"
+    ],
+    "experience_requirements": [
+      "Professional experience building and managing GoHighLevel systems",
+      "Email and SMS automation",
+      "Healthcare or med spa practice experience preferred"
+    ],
+    "key_responsibilities": [
+      "Build client subaccounts, pipelines, and custom fields",
+      "Email and SMS follow-up and reactivation workflows",
+      "Test lead journey from form submission to booking",
+      "New patient inquiry funnels and intake scheduling"
+    ],
+    "keywords": [
+      "subaccounts",
+      "custom fields",
+      "lead assignment",
+      "missed-call text-back",
+      "reactivation",
+      "lead notifications",
+      "SOPs",
+      "reporting dashboards",
+      "patient intake",
+      "HIPAA",
+      "booking"
+    ],
+    "experience_years": null,
+    "seniority_level": "mid"
+  },
+  "captured_on": "2026-11-25",
+  "pii_scrubbed": true
+}

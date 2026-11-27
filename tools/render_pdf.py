@@ -289,6 +289,11 @@ def build_resume_html(
   h1 {
     font-size: 17.5pt;
   }
+  h2 {
+    /* Wide tracking at this size makes PDF text extractors split headings
+       ("EDUCATION" -> "educ at ion"), so ATS parsers miss the section. */
+    letter-spacing: 0.3pt;
+  }
   .headline {
     font-size: 9.4pt;
     margin-bottom: 2pt;

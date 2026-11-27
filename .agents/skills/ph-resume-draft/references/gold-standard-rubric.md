@@ -5,6 +5,9 @@ To earn `gold_standard` status:
 - **Total Score `>= 30 / 35`**
 - **Every single dimension `>= 4 / 5`**
 - **Zero deterministic errors** from `tools/validate_resume.py` and `tools/pii_guard.py`
+- **External ATS gate:** latest Resume-Matcher run against the resume's target remote job post `>= 80` with a clean parse check (`ph-resume-ats`)
+
+For remote-targeted resumes, `ph_market_authenticity` also covers credible remote readiness (client type, time-zone overlap, async stack), and `niche_tool_recency` covers the target post's actual stack. Keyword stuffing caps `readability_anti_slop` and `cross_section_coherence` at 3.
 
 | Dimension Key | 5/5 Gold-Standard Bar | Reject (`<= 3`) Trigger |
 |---|---|---|

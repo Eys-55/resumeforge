@@ -25,6 +25,7 @@ Synthesizes realistic, modern, 100% fictional Filipino resumes into SQL (`resume
    uv run resumeforge resume list --niche <niche_slug>
    ```
    Check existing personas and `resume_code` values so you never duplicate a name, city/school cliché, or career arc.
+   **Pick a target remote job post** (`uv run resumeforge job list --niche <niche_slug>`, then `job show <posting_key>`). If none fits, ask `ph-niche-scout` to collect one. Set `target_job_posting_key` in the draft JSON, and design the persona to be a **genuinely strong, honest fit** for that post. Follow [ph-remote-work-2026.md](../ph-niche-scout/references/ph-remote-work-2026.md) for remote-specific conventions (time-zone overlap, async tools, client types).
 2. **Design a unique Filipino synthetic persona:**
    - Choose a fresh `resume_code` (e.g., `PH-TECH-MID-001`, `PH-BPO-MID-002`).
    - Pick a culturally authentic, non-cliché Filipino full name, realistic PH city/region hub, appropriate regional/NCR university, synthetic email (`@example.ph`), and masked phone (`+63 9XX 000 XXXX`).
@@ -40,5 +41,10 @@ Synthesizes realistic, modern, 100% fictional Filipino resumes into SQL (`resume
    EOF
    ```
    (Use `--update` if revising an existing `draft` or `needs_revision` resume.)
-5. **Hand off to `ph-resume-review`:**
+5. **Run the external ATS check (`ph-resume-ats`):**
+   ```bash
+   uv run resumeforge resume ats-check <resume_code>
+   ```
+   Revise honestly (no keyword stuffing) until it clears the threshold, for at most 3 loops.
+6. **Hand off to `ph-resume-review`:**
    - Never manually force `gold_standard`. Invoke `ph-resume-review` so the independent `resume-auditor` evaluates and promotes (or returns surgical fixes).

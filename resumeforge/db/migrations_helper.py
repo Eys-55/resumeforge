@@ -44,6 +44,8 @@ def get_db_stats(db_url_or_path: Path | str | None = None) -> dict[str, int]:
         "resume_projects",
         "resume_languages",
         "resume_reviews",
+        "job_postings",
+        "resume_ats_runs",
     ]
     engine = get_engine(db_url_or_path, read_only=True)
     counts: dict[str, int] = {}
